@@ -22,15 +22,13 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".LocationReceiver"
-            android:enabled="true"
-            android:exported="false"></receiver>
-
         <service
             android:name=".StoreLocation"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false">
+
+
+        </service>
     </application>
 
 </manifest>

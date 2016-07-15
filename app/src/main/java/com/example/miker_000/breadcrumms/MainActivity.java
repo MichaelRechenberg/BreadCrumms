@@ -2,10 +2,12 @@ package com.example.miker_000.breadcrumms;
 
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 
@@ -29,6 +31,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -48,6 +51,19 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest locationRequest;
     private PendingIntent locationIntent;
     private LocationSettingsRequest.Builder locationSettingsRequest;
+    //Broadcast Receiver to update Lat/Lng on Activity everytime we get a new location update
+    private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("Derp", "Updating UI");
+            if(LocationResult.hasResult(intent)){
+                LocationResult result = LocationResult.extractResult(intent);
+                Location loc = result.getLastLocation();
+                updateUI(loc);
+
+            }
+        }
+    };
 
     //indicates if we are bound to the service StoreLocation
     boolean isBound = false;
@@ -87,20 +103,33 @@ public class MainActivity extends AppCompatActivity implements
                 .setFastestInterval(5000)
                 .setInterval(5000);
         //have pendingIntent send broadcast that will be picked up
-        //  by LocationReceiver
-        Intent tempIntent = new Intent(this, LocationReceiver.class);
+        //  by any registered BroadcastReceivers in the current package
+        //  that have the action StoreLocation.LOCATION_UPDATE set
+        Intent tempIntent = new Intent()
+                .setPackage(getApplicationContext().getPackageName())
+                .setAction(StoreLocation.LOCATION_UPDATE);
         //TODO: Change Flag to Cancel Current?
         locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                LocationReceiver.LOCATION_UPDATE_CODE, tempIntent,
+                StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         locationSettingsRequest = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest)
                 .setAlwaysShow(true);
         googleApiClient.connect();
 
-        updateUI();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(locationReceiver);
+    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -117,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
         removeMyLocationUpdates();
+        unregisterReceiver(locationReceiver);
         Log.d("Derp", "onDestroy() called");
     }
     
@@ -217,7 +247,8 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("Derp", "Location Request Removed");
     }
 
-    private void updateUI(){
+    private void updateUI(Location newLoc){
+        mLastLocation = newLoc;
         if(mLastLocation!=null){
             latitudeData.setText(String.valueOf(mLastLocation.getLatitude()));
             longitudeData.setText(String.valueOf(mLastLocation.getLongitude()));
@@ -246,5 +277,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     }
+
 
 }

@@ -11,6 +11,8 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 
 import android.os.IBinder;
@@ -84,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+    //SQLlite database variables
+    private LocationDatabaseDbHelper dbHelper;
+    private SQLiteDatabase db;
+
 
 
     //Application Lifetime Methods
@@ -94,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements
         latitudeData = (TextView)findViewById(R.id.locLatData);
         longitudeData = (TextView) findViewById(R.id.locLngData);
 
+        //Setup for location updates
         googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
@@ -116,6 +123,12 @@ public class MainActivity extends AppCompatActivity implements
                 .addLocationRequest(locationRequest)
                 .setAlwaysShow(true);
         googleApiClient.connect();
+
+        //initialize SQLlite variables
+        dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
+        db = dbHelper.getReadableDatabase();
+        //Reset the DB.  The arguments 1,2 do nothing but satisfy func signature
+        //dbHelper.onUpgrade(db, 1, 2);
 
     }
 
@@ -268,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements
             active = false;
             msg.setText("NOT Looking for Location!");
             removeMyLocationUpdates();
+            logEntries();
 
         }
         else{
@@ -275,7 +289,40 @@ public class MainActivity extends AppCompatActivity implements
             msg.setText("Looking for Location");
             addMyLocationUpdates();
 
+
         }
+    }
+
+    //Helper function to test SQLlite functionality
+    //Todo: Remove this
+    private void logEntries(){
+        String table = LocationDatabaseContract.LocationEntry.TABLE_NAME;
+        String[] columns = {
+                LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED,
+                LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE,
+                LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE
+        };
+        //get the most recent logs
+        String orderBy = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED + " DESC";
+        String limit = "10";
+
+        //Get the 10 most recent locations and log them
+        //This is really just for getting used to SQLlite, not used in final app
+        Cursor result = db.query(table, columns, null, null, null, null, orderBy, limit);
+        int row_count = result.getCount();
+        if(row_count > 0){
+            String[] columnNames = result.getColumnNames();
+            int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+            int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+            int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
+            Log.d("SQL", String.valueOf(row_count) + " rows were returned");
+            for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
+                Log.d("SQL", "Time Created: " + result.getString(time_createdIndex));
+                Log.d("SQL", "Latitude: " + result.getDouble(latitudeIndex));
+                Log.d("SQL", "Longitude: " + result.getDouble(longitudeIndex));
+            }
+        }
+
     }
 
 

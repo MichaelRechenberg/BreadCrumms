@@ -15,10 +15,13 @@ public class LocationDatabaseDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_TABLE =
         "CREATE TABLE " + LocationDatabaseContract.LocationEntry.TABLE_NAME +
         "(" + LocationDatabaseContract.LocationEntry._ID +
-        "INTEGER PRIMARY KEY, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE +
-        "REAL NOT NULL, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE +
-        "REAL NOT NULL, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
-        "TEXT DEFAULT date('now') NOT NULL" + ")";
+        " INTEGER PRIMARY KEY, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE +
+        " REAL NOT NULL, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE +
+        " REAL NOT NULL, " + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
+        " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP" + ")";
+
+    private static final String SQL_DROP_TABLE =
+        "DROP TABLE IF EXISTS " + LocationDatabaseContract.LocationEntry.TABLE_NAME;
 
 
     public LocationDatabaseDbHelper(Context context){
@@ -30,7 +33,8 @@ public class LocationDatabaseDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        //TODO: Implement this
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL(SQL_DROP_TABLE);
+        onCreate(db);
     }
 }

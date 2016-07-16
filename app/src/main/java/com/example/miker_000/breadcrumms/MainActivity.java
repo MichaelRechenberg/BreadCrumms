@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements
                     button.setChecked(false);
                     TextView locText = (TextView)
                             findViewById(R.id.message);
-                    locText.setText("NOT Looking for Location");
+                    locText.setText(R.string.not_looking_for_location);
                     active = false;
 
 
@@ -267,26 +267,25 @@ public class MainActivity extends AppCompatActivity implements
             longitudeData.setText(String.valueOf(mLastLocation.getLongitude()));
         }
         else{
-            latitudeData.setText("Could not Find Latitude");
-            longitudeData.setText("Could not Find Longititude");
+            latitudeData.setText(R.string.no_latititude);
+            longitudeData.setText(R.string.no_longitude);
         }
     }
 
 
     public void toggleFindLocation(View view){
-        ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
         TextView msg = (TextView) findViewById(R.id.message);
 
         if(active){
             active = false;
-            msg.setText("NOT Looking for Location!");
+            msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
             logEntries();
 
         }
         else{
             active = true;
-            msg.setText("Looking for Location");
+            msg.setText(R.string.looking_for_location);
             addMyLocationUpdates();
 
 
@@ -311,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements
         Cursor result = db.query(table, columns, null, null, null, null, orderBy, limit);
         int row_count = result.getCount();
         if(row_count > 0){
-            String[] columnNames = result.getColumnNames();
             int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
             int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
             int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
@@ -322,6 +320,9 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d("SQL", "Longitude: " + result.getDouble(longitudeIndex));
             }
         }
+
+        //release the cursor
+        result.close();
 
     }
 

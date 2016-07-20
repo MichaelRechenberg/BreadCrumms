@@ -153,7 +153,12 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
+        try{
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        }
+        catch(SecurityException e){
+            //pass silently
+        }
     }
 
     @Override
@@ -377,8 +382,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void startMapLocationActivity(View view){
+
         Intent intent = new Intent();
         intent.setClass(MainActivity.this, MapLocationActivity.class);
+        intent.putExtra("userLocation", mLastLocation);
         startActivity(intent);
     }
 

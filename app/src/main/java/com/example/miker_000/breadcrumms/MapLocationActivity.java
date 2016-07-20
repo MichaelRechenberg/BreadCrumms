@@ -75,9 +75,10 @@ public class MapLocationActivity extends AppCompatActivity
 
         Location userLocation = (Location) getIntent().getExtras().get("userLocation");
 
-        //Todo: have the Lat/Lng default to user's location
-        double latitude = 48.452000;
-        double longitude = -38.414656;
+
+        //defaults to google headquarters
+        double latitude = 37.420841;
+        double longitude = -127.084063;
 
         if(userLocation != null){
             latitude = userLocation.getLatitude();
@@ -93,12 +94,11 @@ public class MapLocationActivity extends AppCompatActivity
 
     public void setBounds(View view){
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
-        Log.d("Tmp", bounds.toString());
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putFloat(SW_BOUND_LAT, (float) bounds.southwest.latitude);
-        editor.putFloat(SW_BOUND_LNG, (float) bounds.southwest.longitude);
-        editor.putFloat(NE_BOUND_LAT, (float) bounds.northeast.latitude);
-        editor.putFloat(NE_BOUND_LNG, (float) bounds.northeast.longitude);
+        editor.putLong(SW_BOUND_LAT, Double.doubleToLongBits(bounds.southwest.latitude));
+        editor.putLong(SW_BOUND_LNG,  Double.doubleToLongBits(bounds.southwest.longitude));
+        editor.putLong(NE_BOUND_LAT, Double.doubleToLongBits(bounds.northeast.latitude));
+        editor.putLong(NE_BOUND_LNG, Double.doubleToLongBits(bounds.northeast.longitude));
         editor.commit();
         Toast.makeText(getApplicationContext(), "Bounds Successfully Set!", Toast.LENGTH_SHORT).show();
     }

@@ -394,10 +394,23 @@ public class MainActivity extends AppCompatActivity implements
             result.close();
 
 
-            float southwest_lat = sharedPreferences.getFloat(MapLocationActivity.SW_BOUND_LAT, 40);
-            float southwest_lng = sharedPreferences.getFloat(MapLocationActivity.SW_BOUND_LNG, 40);
-            float northwest_lat = sharedPreferences.getFloat(MapLocationActivity.NE_BOUND_LAT, 40);
-            float northwest_lng = sharedPreferences.getFloat(MapLocationActivity.NE_BOUND_LNG, 40);
+
+            double southwest_lat =
+                    Double.longBitsToDouble(
+                            sharedPreferences.getLong(MapLocationActivity.SW_BOUND_LAT, 0)
+                    );
+            double southwest_lng =
+                    Double.longBitsToDouble(
+                            sharedPreferences.getLong(MapLocationActivity.SW_BOUND_LNG, 0)
+                    );
+            double northwest_lat =
+                    Double.longBitsToDouble(
+                            sharedPreferences.getLong(MapLocationActivity.NE_BOUND_LAT, 0)
+                    );
+            double northwest_lng =
+                    Double.longBitsToDouble(
+                            sharedPreferences.getLong(MapLocationActivity.NE_BOUND_LNG, 40)
+                    );
 
             Log.d("Tmp", String.valueOf(southwest_lat));
             Log.d("Tmp", String.valueOf(southwest_lng));

@@ -41,6 +41,7 @@ public class StoreLocation extends Service {
                             LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE,
                             loc.getLongitude()
                     );
+                    //Todo: Async task
                     long row_id = db.insert(LocationDatabaseContract.LocationEntry.TABLE_NAME,
                             null,
                             values);
@@ -60,7 +61,6 @@ public class StoreLocation extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d("Derp", "onBind() called");
-        // TODO: Return the communication channel to the service.
         //throw new UnsupportedOperationException("Not yet implemented");
         IntentFilter filter = new IntentFilter(StoreLocation.LOCATION_UPDATE);
         registerReceiver(locationReceiver, filter);

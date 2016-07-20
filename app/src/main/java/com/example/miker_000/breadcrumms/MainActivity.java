@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 
+import android.os.AsyncTask;
 import android.os.IBinder;
 
 import android.support.annotation.NonNull;
@@ -39,6 +40,11 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest locationRequest;
     private PendingIntent locationIntent;
     private LocationSettingsRequest.Builder locationSettingsRequest;
+    private final long updateDelay = 1000*60;
     //Broadcast Receiver to update Lat/Lng on Activity everytime we get a new location update
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
@@ -107,8 +114,8 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(5000)
-                .setInterval(5000);
+                .setFastestInterval(updateDelay)
+                .setInterval(updateDelay);
         //have pendingIntent send broadcast that will be picked up
         //  by any registered BroadcastReceivers in the current package
         //  that have the action StoreLocation.LOCATION_UPDATE set
@@ -193,6 +200,11 @@ public class MainActivity extends AppCompatActivity implements
                             Intent tmp = new Intent()
                                     .setClass(MainActivity.this, StoreLocation.class);
                             bindService(tmp, mConnection, Context.BIND_AUTO_CREATE);
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    "Each location update will occur every " + updateDelay/1000 + " seconds",
+                                    Toast.LENGTH_LONG
+                            ).show();
                             Log.d("Derp", "Location request added");
 
                         }
@@ -252,10 +264,21 @@ public class MainActivity extends AppCompatActivity implements
     //Removes the location updates requested by this service
     //Also unbinds from service
     private void removeMyLocationUpdates(){
-        LocationServices.FusedLocationApi.removeLocationUpdates(
+        PendingResult<Status> removeLocationStatus = LocationServices.FusedLocationApi.removeLocationUpdates(
                 googleApiClient,
                 locationIntent
         );
+        removeLocationStatus.setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if(status.isSuccess()){
+                    Log.d("Derp", "Successfully removed location request");
+                }
+                else{
+                    Log.d("Derp", "COULD NOT REMOVE LOCATION REQUEST");
+                }
+            }
+        });
         unbindService(mConnection);
         Log.d("Derp", "Location Request Removed");
     }
@@ -293,38 +316,64 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //Helper function to test SQLlite functionality
-    //Todo: Remove this
+    //Uses AsyncTask to not block UI thread
     private void logEntries(){
-        String table = LocationDatabaseContract.LocationEntry.TABLE_NAME;
-        String[] columns = {
-                LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED,
-                LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE,
-                LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE
-        };
-        //get the most recent logs
-        String orderBy = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED + " DESC";
-        String limit = "10";
 
-        //Get the 10 most recent locations and log them
-        //This is really just for getting used to SQLlite, not used in final app
-        Cursor result = db.query(table, columns, null, null, null, null, orderBy, limit);
-        int row_count = result.getCount();
-        if(row_count > 0){
-            int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
-            int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
-            int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
-            Log.d("SQL", String.valueOf(row_count) + " rows were returned");
-            for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
-                Log.d("SQL", "Time Created: " + result.getString(time_createdIndex));
-                Log.d("SQL", "Latitude: " + result.getDouble(latitudeIndex));
-                Log.d("SQL", "Longitude: " + result.getDouble(longitudeIndex));
-            }
-        }
-
-        //release the cursor
-        result.close();
-
+        new DumpAllEntries().execute(db);
     }
 
+    private class DumpAllEntries extends AsyncTask<Object, Integer, Cursor>{
+        @Override
+        protected Cursor doInBackground(Object... objects) {
+            SQLiteDatabase db = (SQLiteDatabase) objects[0];
+
+            String table = LocationDatabaseContract.LocationEntry.TABLE_NAME;
+            String[] columns = {
+                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED,
+                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE,
+                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE
+            };
+            //get the most recent logs
+            String orderBy = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED + " DESC";
+            String limit = "";
+
+
+            //Get the 10 most recent locations and log them
+            //This is really just for getting used to SQLlite, not used in final app
+            Cursor result = db.query(table, columns, null, null, null, null, orderBy, limit);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Cursor result) {
+            int row_count = result.getCount();
+            if(row_count > 0){
+                //convert from UTC to local timezone
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+                int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
+                int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
+                Log.d("SQL", String.valueOf(row_count) + " rows were returned");
+                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
+                    String dateString = result.getString(time_createdIndex);
+                    try{
+                        dateString = df.parse(dateString).toString();
+                    }
+                    catch (ParseException e){
+                        dateString = "ERROR IN PARSING DATE";
+                    }
+
+
+                    Log.d("SQL", "Time Created: " + dateString);
+                    Log.d("SQL", "Latitude: " + result.getDouble(latitudeIndex));
+                    Log.d("SQL", "Longitude: " + result.getDouble(longitudeIndex));
+                }
+            }
+
+            //release the cursor
+            result.close();
+        }
+    }
 
 }

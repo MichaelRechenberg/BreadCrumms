@@ -376,4 +376,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    public void startMapLocationActivity(View view){
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, MapLocationActivity.class);
+        startActivity(intent);
+    }
+
 }

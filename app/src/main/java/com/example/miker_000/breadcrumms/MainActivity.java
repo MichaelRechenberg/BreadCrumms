@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
@@ -48,6 +49,11 @@ import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
+
+    //Handle on shared preferences
+    SharedPreferences sharedPreferences;
+
+
     private Location mLastLocation = null;
     //indicates if we are currently making location updates
     private boolean active = false;
@@ -104,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Get handle on shared preferences
+        sharedPreferences = getApplicationContext().getSharedPreferences(
+                getString(R.string.preference_file_key),
+                Context.MODE_PRIVATE
+        );
+
+        //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
         longitudeData = (TextView) findViewById(R.id.locLngData);
 
@@ -378,6 +392,21 @@ public class MainActivity extends AppCompatActivity implements
 
             //release the cursor
             result.close();
+
+
+            float southwest_lat = sharedPreferences.getFloat(MapLocationActivity.SW_BOUND_LAT, 40);
+            float southwest_lng = sharedPreferences.getFloat(MapLocationActivity.SW_BOUND_LNG, 40);
+            float northwest_lat = sharedPreferences.getFloat(MapLocationActivity.NE_BOUND_LAT, 40);
+            float northwest_lng = sharedPreferences.getFloat(MapLocationActivity.NE_BOUND_LNG, 40);
+
+            Log.d("Tmp", String.valueOf(southwest_lat));
+            Log.d("Tmp", String.valueOf(southwest_lng));
+            Log.d("Tmp", String.valueOf(northwest_lat));
+            Log.d("Tmp", String.valueOf(northwest_lng));
+
+
+
+
         }
     }
 

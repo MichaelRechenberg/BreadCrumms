@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("Tmp", "onResume() called");
         registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
     }
 
@@ -185,7 +186,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
         removeMyLocationUpdates();
-        unregisterReceiver(locationReceiver);
+        if(active){
+            unbindService(mConnection);
+        }
+
         Log.d("Derp", "onDestroy() called");
     }
     
@@ -224,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements
                                     "Each location update will occur every " + updateDelay/1000 + " seconds",
                                     Toast.LENGTH_LONG
                             ).show();
+
                             Log.d("Derp", "Location request added");
 
                         }
@@ -281,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //Removes the location updates requested by this service
-    //Also unbinds from service
     private void removeMyLocationUpdates(){
         PendingResult<Status> removeLocationStatus = LocationServices.FusedLocationApi.removeLocationUpdates(
                 googleApiClient,
@@ -298,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
-        unbindService(mConnection);
+
         Log.d("Derp", "Location Request Removed");
     }
 
@@ -322,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements
             active = false;
             msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
+            unbindService(mConnection);
             logEntries();
 
         }
@@ -329,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements
             active = true;
             msg.setText(R.string.looking_for_location);
             addMyLocationUpdates();
-
+            registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
 
         }
     }

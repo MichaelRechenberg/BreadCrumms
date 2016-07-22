@@ -30,6 +30,7 @@ import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -149,8 +150,8 @@ public class MapLocationActivity extends AppCompatActivity
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
         //Todo: Import settings from sharedPreferences
         String limit = null;
-        Date earliestDate = null;
         Date latestDate = null;
+        Date earliestDate = null;
         String order = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED;
 
         String query = LocationDatabaseDbHelper.gatherLocationsQueryString(bounds, latestDate, earliestDate,

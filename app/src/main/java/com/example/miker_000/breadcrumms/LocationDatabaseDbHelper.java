@@ -56,9 +56,9 @@ public class LocationDatabaseDbHelper extends SQLiteOpenHelper {
      *  Points within the bounds of the Heat Map
      *
      *  @param bounds The bounds of where to select points from
-     *  @param latestDate The latest Date from which you want to begin searching.
+     *  @param latestDate The latest Date from which you want to begin searching (lower bound in time)
      *                    Set this to null if you wish to not bound the date from below
-     *  @param earliestDate The earliest Date from which you want to begin searching.
+     *  @param earliestDate The earliest Date from which you want to begin searching (upper bound in time)
      *                    Set this to null if you want to set this to the current date
      *  @param limit String denoting LIMIT clause (do not include the literal "LIMIT")
      *               Set this to null to have no limit on the number or results returned
@@ -70,7 +70,7 @@ public class LocationDatabaseDbHelper extends SQLiteOpenHelper {
 
         //Invalid arguments
         if((latestDate != null && earliestDate!=null && latestDate.after(earliestDate)) || bounds==null){
-            return null;
+            throw new IllegalArgumentException("Dates or bounds are invalid for gatherLocationsQueryString()");
         }
 
         LatLng southwest = bounds.southwest;
@@ -95,28 +95,37 @@ public class LocationDatabaseDbHelper extends SQLiteOpenHelper {
 
 
         where += " AND ";
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
         //Add date restraints
         if(latestDate != null || earliestDate != null){
 
             //Both dates are specified
             if(latestDate != null && earliestDate!=null){
-
+                String latestDateString = df.format(latestDate);
+                String earliestDateString = df.format(earliestDate);
+                where += "DATETIME(" + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
+                        ") BETWEEN DATETIME('" + latestDateString + "') AND DATETIME ('" +
+                        earliestDateString + "')";
             }
             //Only the earliest date is specified
             else if (latestDate == null && earliestDate!=null){
-
+                String earliestDateString = df.format(earliestDate);
+                where += "DATETIME(" + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
+                        ") < " + "DATETIME('" + earliestDateString + "')";
             }
             //Only the latestDate is specified
             else{
-
+                String latestDateString = df.format(latestDate);
+                where += "DATETIME(" + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
+                        ") > " + "DATETIME('" + latestDateString + "')";
             }
         }
         //No dates are specified, gather all any points before current time
         else{
             Calendar calendar = Calendar.getInstance();
             Date currentDate = calendar.getTime();
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            df.setTimeZone(TimeZone.getTimeZone("UTC"));
             String currentDateAsString = df.format(currentDate);
             where += "DATETIME(" + LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED +
                     ") < " + "DATETIME('" + currentDateAsString + "')";

@@ -155,8 +155,6 @@ public class MainActivity extends AppCompatActivity implements
         //initialize SQLlite variables
         dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
         db = dbHelper.getReadableDatabase();
-        //Reset the DB.  The arguments 1,2 do nothing but satisfy func signature
-        //dbHelper.onUpgrade(db, 1, 2);
 
     }
 

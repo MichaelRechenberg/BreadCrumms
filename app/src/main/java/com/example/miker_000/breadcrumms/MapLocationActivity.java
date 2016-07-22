@@ -3,9 +3,13 @@ package com.example.miker_000.breadcrumms;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.location.Location;
 import android.media.UnsupportedSchemeException;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +35,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class MapLocationActivity extends AppCompatActivity
     implements OnMapReadyCallback {
@@ -49,7 +62,8 @@ public class MapLocationActivity extends AppCompatActivity
     //indicates if the map is loaded yet
     private boolean isLoaded = false;
 
-    private SharedPreferences sharedPreferences;
+    private SQLiteDatabase db;
+    private LocationDatabaseDbHelper dbHelper;
 
 
     @SuppressWarnings("ResourceAsColor")
@@ -58,10 +72,10 @@ public class MapLocationActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_location);
 
-        sharedPreferences = getApplicationContext().getSharedPreferences(
-                getString(R.string.preference_file_key),
-                Context.MODE_PRIVATE
-        );
+        //init DB variable
+        dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
+        db = dbHelper.getReadableDatabase();
+
         //set up the tool bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
@@ -85,7 +99,7 @@ public class MapLocationActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.heatmap_settings:
-
+                //Open up Activity to set settings of heatmap
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -120,14 +134,65 @@ public class MapLocationActivity extends AppCompatActivity
 
     }
 
-    public void setBounds(View view){
+    /**
+     * Make the heat map given the settings set by the user
+     * @param view
+     */
+    public void makeHeatMap(View view){
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong(SW_BOUND_LAT, Double.doubleToLongBits(bounds.southwest.latitude));
-        editor.putLong(SW_BOUND_LNG,  Double.doubleToLongBits(bounds.southwest.longitude));
-        editor.putLong(NE_BOUND_LAT, Double.doubleToLongBits(bounds.northeast.latitude));
-        editor.putLong(NE_BOUND_LNG, Double.doubleToLongBits(bounds.northeast.longitude));
-        editor.commit();
-        Toast.makeText(getApplicationContext(), "Bounds Successfully Set!", Toast.LENGTH_SHORT).show();
+        //Todo: Import settings from sharedPreferences
+        String limit = null;
+        Date earliestDate = null;
+        Date latestDate = null;
+        String order = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED;
+
+        String query = LocationDatabaseDbHelper.gatherLocationsQueryString(bounds, latestDate, earliestDate,
+                limit, order);
+
+        new DumpAllEntries().execute(db, query);
+
+    }
+
+    private class DumpAllEntries extends AsyncTask<Object, Integer, Cursor> {
+        @Override
+        protected Cursor doInBackground(Object... objects) {
+            SQLiteDatabase db = (SQLiteDatabase) objects[0];
+            String query = (String) objects[1];
+            Log.d("Tmp", "Making query");
+            Cursor result = db.rawQuery(query, null);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Cursor result) {
+            Log.d("Tmp", "In PostExecute");
+            int row_count = result.getCount();
+            if(row_count > 0){
+                //convert from UTC to local timezone
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+                int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+                int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
+                int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
+                Log.d("SQL", String.valueOf(row_count) + " rows were returned");
+
+                //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
+                ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
+                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
+                    LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
+                    pts.add(tempPt);
+                }
+
+                HeatmapTileProvider heatmapProvider = new HeatmapTileProvider.Builder()
+                        .data(pts)
+                        .build();
+                theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
+
+            }
+
+            //release the cursor
+            result.close();
+
+        }
     }
 }

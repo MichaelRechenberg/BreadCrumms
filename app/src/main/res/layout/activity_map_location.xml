@@ -34,23 +34,21 @@
             android:layout_height="match_parent"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:id="@+id/mapFragment"
-            android:layout_above="@+id/button"
+            android:layout_above="@+id/heatMapSwitch"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:layout_row="0"
             android:layout_column="0" />
 
-        <Button
+        <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Make Heat Map"
-            android:id="@+id/button"
+            android:text="Enable Heat Map"
+            android:id="@+id/heatMapSwitch"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:onClick="makeHeatMap"
-            android:layout_gravity="center_horizontal"
-            android:layout_row="1"
-            android:layout_column="0" />
+            android:checked="false"
+            android:paddingTop="@dimen/abc_select_dialog_padding_start_material" />
 
     </RelativeLayout>
 

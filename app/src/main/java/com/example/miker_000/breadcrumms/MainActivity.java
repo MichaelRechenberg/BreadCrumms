@@ -332,7 +332,6 @@ public class MainActivity extends AppCompatActivity implements
             msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
             unbindService(mConnection);
-            logEntries();
 
         }
         else{
@@ -344,94 +343,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    //Helper function to test SQLlite functionality
-    //Uses AsyncTask to not block UI thread
-    private void logEntries(){
 
-        new DumpAllEntries().execute(db);
-    }
-
-    private class DumpAllEntries extends AsyncTask<Object, Integer, Cursor>{
-        @Override
-        protected Cursor doInBackground(Object... objects) {
-            SQLiteDatabase db = (SQLiteDatabase) objects[0];
-
-            String table = LocationDatabaseContract.LocationEntry.TABLE_NAME;
-            String[] columns = {
-                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED,
-                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE,
-                    LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE
-            };
-            //get the most recent logs
-            String orderBy = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED + " DESC";
-            String limit = "";
-
-
-            //Get the 10 most recent locations and log them
-            //This is really just for getting used to SQLlite, not used in final app
-            Cursor result = db.query(table, columns, null, null, null, null, orderBy, limit);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Cursor result) {
-            int row_count = result.getCount();
-            if(row_count > 0){
-                //convert from UTC to local timezone
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                df.setTimeZone(TimeZone.getTimeZone("UTC"));
-                int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
-                int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
-                int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
-                Log.d("SQL", String.valueOf(row_count) + " rows were returned");
-                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
-                    String dateString = result.getString(time_createdIndex);
-                    try{
-                        dateString = df.parse(dateString).toString();
-                    }
-                    catch (ParseException e){
-                        dateString = "ERROR IN PARSING DATE";
-                    }
-
-
-                    Log.d("SQL", "Time Created: " + dateString);
-                    Log.d("SQL", "Latitude: " + result.getDouble(latitudeIndex));
-                    Log.d("SQL", "Longitude: " + result.getDouble(longitudeIndex));
-                }
-            }
-
-            //release the cursor
-            result.close();
-
-
-
-            double southwest_lat =
-                    Double.longBitsToDouble(
-                            sharedPreferences.getLong(MapLocationActivity.SW_BOUND_LAT, 0)
-                    );
-            double southwest_lng =
-                    Double.longBitsToDouble(
-                            sharedPreferences.getLong(MapLocationActivity.SW_BOUND_LNG, 0)
-                    );
-            double northwest_lat =
-                    Double.longBitsToDouble(
-                            sharedPreferences.getLong(MapLocationActivity.NE_BOUND_LAT, 0)
-                    );
-            double northwest_lng =
-                    Double.longBitsToDouble(
-                            sharedPreferences.getLong(MapLocationActivity.NE_BOUND_LNG, 40)
-                    );
-
-            Log.d("Tmp", String.valueOf(southwest_lat));
-            Log.d("Tmp", String.valueOf(southwest_lng));
-            Log.d("Tmp", String.valueOf(northwest_lat));
-            Log.d("Tmp", String.valueOf(northwest_lng));
-
-
-
-
-        }
-    }
 
     public void startMapLocationActivity(View view){
 

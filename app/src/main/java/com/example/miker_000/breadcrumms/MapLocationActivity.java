@@ -1,16 +1,10 @@
 package com.example.miker_000.breadcrumms;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.location.Location;
-import android.media.UnsupportedSchemeException;
 import android.os.AsyncTask;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,29 +14,23 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.ToggleButton;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 public class MapLocationActivity extends AppCompatActivity
@@ -59,11 +47,13 @@ public class MapLocationActivity extends AppCompatActivity
 
 
     private GoogleMap theMap;
-    //indicates if the map is loaded yet
-    private boolean isLoaded = false;
+    private TileOverlay heatMapOverlay;
+    private boolean isHeatMapOn;
 
     private SQLiteDatabase db;
     private LocationDatabaseDbHelper dbHelper;
+
+
 
 
     @SuppressWarnings("ResourceAsColor")
@@ -79,13 +69,31 @@ public class MapLocationActivity extends AppCompatActivity
         //set up the tool bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
-
         toolbar.setTitle("Heat Map");
         setSupportActionBar(toolbar);
+
+        //set up toggle switch
+        Switch heatMapSwitch = (Switch) findViewById(R.id.heatMapSwitch);
+        heatMapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //Turn on heatmap overlay
+                if (isChecked) {
+                    isHeatMapOn = true;
+                    makeHeatMap();
+                } else {
+                    // The toggle is disabled
+                    isHeatMapOn = false;
+                    heatMapOverlay.remove();
+                }
+            }
+        });
+
+        //Set up the Google Map Object
         FragmentManager fragmentManager= getSupportFragmentManager();
         SupportMapFragment mapFragment = (SupportMapFragment)
                 fragmentManager.findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
+        isHeatMapOn = false;
     }
 
     @Override
@@ -110,7 +118,6 @@ public class MapLocationActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
 
 
-        isLoaded = true;
         theMap = googleMap;
         theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
@@ -134,11 +141,11 @@ public class MapLocationActivity extends AppCompatActivity
 
     }
 
+
     /**
-     * Make the heat map given the settings set by the user
-     * @param view
+     * Make the heat map using the settings set by the user
      */
-    public void makeHeatMap(View view){
+    private void makeHeatMap(){
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
         //Todo: Import settings from sharedPreferences
         String limit = null;
@@ -186,7 +193,7 @@ public class MapLocationActivity extends AppCompatActivity
                 HeatmapTileProvider heatmapProvider = new HeatmapTileProvider.Builder()
                         .data(pts)
                         .build();
-                theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
+                heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
 
             }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.miker_000.breadcrumms">
+    package="com.example.miker_000.breadcrumms" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -9,12 +9,15 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDZV-XoYcm_tfXZUf7ij0PDkp2anEpjc7E"/>
+        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" >
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDZV-XoYcm_tfXZUf7ij0PDkp2anEpjc7E" />
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
             a
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,9 +29,17 @@
         <service
             android:name=".StoreLocation"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
-        <activity android:name=".MapLocationActivity"></activity>
+        <activity android:name=".MapLocationActivity" />
+        <activity
+            android:name=".HeatMapSettingsActivity"
+            android:label="@string/title_activity_heat_map_settings"
+            android:parentActivityName=".MapLocationActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.miker_000.breadcrumms.MapLocationActivity" />
+        </activity>
     </application>
 
 </manifest>

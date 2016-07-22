@@ -3,13 +3,18 @@ package com.example.miker_000.breadcrumms;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.UnsupportedSchemeException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -47,6 +52,7 @@ public class MapLocationActivity extends AppCompatActivity
     private SharedPreferences sharedPreferences;
 
 
+    @SuppressWarnings("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,13 +62,35 @@ public class MapLocationActivity extends AppCompatActivity
                 getString(R.string.preference_file_key),
                 Context.MODE_PRIVATE
         );
+        //set up the tool bar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
 
+        toolbar.setTitle("Heat Map");
+        setSupportActionBar(toolbar);
         FragmentManager fragmentManager= getSupportFragmentManager();
         SupportMapFragment mapFragment = (SupportMapFragment)
                 fragmentManager.findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.heatmap_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.heatmap_settings:
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

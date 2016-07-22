@@ -14,6 +14,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.location.Location;
 
 import android.os.AsyncTask;
@@ -23,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -120,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements
         //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
         longitudeData = (TextView) findViewById(R.id.locLngData);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
+        toolbar.setTitle("BreadCrumms");
+        setSupportActionBar(toolbar);
 
         //Setup for location updates
         googleApiClient = new GoogleApiClient.Builder(this)

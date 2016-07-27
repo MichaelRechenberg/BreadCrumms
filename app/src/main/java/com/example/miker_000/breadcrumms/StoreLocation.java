@@ -1,5 +1,6 @@
 package com.example.miker_000.breadcrumms;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -18,6 +19,7 @@ public class StoreLocation extends Service {
 
     public static final String LOCATION_UPDATE = "com.example.miker_000.breadcrumms.LOCATION_UPDATE";
     public static final int LOCATION_UPDATE_CODE = 1337;
+    private static final int LOCATION_TRACKING_ONGOING_ID = 1;
 
     private SQLiteDatabase db = null;
 
@@ -67,6 +69,16 @@ public class StoreLocation extends Service {
         LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
         //TODO: Place getWritableDatabase in AsyncTask to not block UI thread
         db = dbHelper.getWritableDatabase();
+
+        //Start the service in the foreground and add notification
+        Notification notification = new Notification.Builder(getApplicationContext())
+                .setContentTitle("BreadCrumms")
+                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setContentText("Location Tracking Is On")
+                .build();
+
+        startForeground(LOCATION_TRACKING_ONGOING_ID, notification);
+
         return new Binder();
     }
 
@@ -75,6 +87,7 @@ public class StoreLocation extends Service {
         Log.d("Derp", "onUnbind() called");
         unregisterReceiver(locationReceiver);
         db = null;
+        stopForeground(true);
         return super.onUnbind(intent);
     }
 

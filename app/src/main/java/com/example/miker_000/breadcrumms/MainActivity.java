@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import android.widget.Toast;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private Location mLastLocation = null;
     //indicates if we are currently making location updates
-    private boolean active = false;
+    private boolean active;
     private TextView latitudeData;
     private TextView longitudeData;
     public static final int REQUEST_FOR_LOCATION = 1;
@@ -112,6 +113,19 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState!=null){
+            //Update the UI to indicate whether or not the location service is currently active
+            active = savedInstanceState.getBoolean("active");
+
+            if(active){
+                TextView msg = (TextView) findViewById(R.id.message);
+                msg.setText(R.string.not_looking_for_location);
+                ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
+                button.setChecked(true);
+            }
+        }
+
 
         //Get handle on shared preferences
         sharedPreferences = getApplicationContext().getSharedPreferences(
@@ -169,6 +183,12 @@ public class MainActivity extends AppCompatActivity implements
     protected void onPause() {
         super.onPause();
         unregisterReceiver(locationReceiver);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean("active", active);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

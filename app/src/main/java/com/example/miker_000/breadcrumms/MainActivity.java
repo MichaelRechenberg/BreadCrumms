@@ -83,28 +83,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
-    //indicates if we are bound to the service StoreLocation
-    boolean isBound = false;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.d("Derp", "Connected To Service");
-            //messengerForService = new Messenger(service);
-            isBound = true;
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.d("Derp", "Disconnected From Service :/");
-            isBound = false;
-        }
-    };
-
-    //SQLlite database variables
-    private LocationDatabaseDbHelper dbHelper;
-    private SQLiteDatabase db;
 
 
 
@@ -114,17 +93,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState!=null){
-            //Update the UI to indicate whether or not the location service is currently active
-            active = savedInstanceState.getBoolean("active");
-
-            if(active){
-                TextView msg = (TextView) findViewById(R.id.message);
-                msg.setText(R.string.not_looking_for_location);
-                ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
-                button.setChecked(true);
-            }
-        }
 
 
         //Get handle on shared preferences
@@ -133,9 +101,19 @@ public class MainActivity extends AppCompatActivity implements
                 Context.MODE_PRIVATE
         );
 
+        active = sharedPreferences.getBoolean("active", false);
+        //The location Service is active, so have the button be "On"
+        if(active){
+            TextView msg = (TextView) findViewById(R.id.message);
+            msg.setText(R.string.not_looking_for_location);
+            ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
+            button.setChecked(true);
+        }
+
         //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
         longitudeData = (TextView) findViewById(R.id.locLngData);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
@@ -166,16 +144,12 @@ public class MainActivity extends AppCompatActivity implements
                 .setAlwaysShow(true);
         googleApiClient.connect();
 
-        //initialize SQLlite variables
-        dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
-        db = dbHelper.getReadableDatabase();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("Tmp", "onResume() called");
         registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
     }
 
@@ -186,15 +160,18 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean("active", active);
-        super.onSaveInstanceState(outState);
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("active", active);
+        editor.commit();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            updateUI(mLastLocation);
         }
         catch(SecurityException e){
             //pass silently
@@ -206,20 +183,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    //Unbind from the service if the app is destroyed
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        removeMyLocationUpdates();
-        if(active){
-            Intent tmp = new Intent()
-                    .setClass(MainActivity.this, StoreLocation.class);
-            stopService(tmp);
-        }
-
-        Log.d("Derp", "onDestroy() called");
-    }
-    
 
     //Add the location request to FusedLocationAPI
     private void addMyLocationUpdates(){
@@ -264,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         Log.d("Derp", "Need to ask for permission");
-                        //TODO: Bring up dialog
                         try{
                             status.startResolutionForResult(MainActivity.this, REQUEST_FOR_LOCATION);
                         }

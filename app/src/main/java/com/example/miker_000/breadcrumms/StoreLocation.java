@@ -58,11 +58,14 @@ public class StoreLocation extends Service {
     public StoreLocation() {
     }
 
-    //TODO: Create and release resources on onBind, onUnbind,
-    //  and when user swipes off of recent apps (onTaskRemove())
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("Derp", "onBind() called");
+        return null;
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         //throw new UnsupportedOperationException("Not yet implemented");
         IntentFilter filter = new IntentFilter(StoreLocation.LOCATION_UPDATE);
         registerReceiver(locationReceiver, filter);
@@ -79,17 +82,13 @@ public class StoreLocation extends Service {
 
         startForeground(LOCATION_TRACKING_ONGOING_ID, notification);
 
-        return new Binder();
+        return 1;
     }
 
     @Override
-    public boolean onUnbind(Intent intent) {
-        Log.d("Derp", "onUnbind() called");
+    public void onDestroy() {
         unregisterReceiver(locationReceiver);
         db = null;
         stopForeground(true);
-        return super.onUnbind(intent);
     }
-
-
 }

@@ -212,7 +212,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         removeMyLocationUpdates();
         if(active){
-            unbindService(mConnection);
+            Intent tmp = new Intent()
+                    .setClass(MainActivity.this, StoreLocation.class);
+            stopService(tmp);
         }
 
         Log.d("Derp", "onDestroy() called");
@@ -243,11 +245,9 @@ public class MainActivity extends AppCompatActivity implements
                                     locationRequest,
                                     locationIntent
                             );
-                            //Bind to service StoreLocation, which will update
-                            //  the SQLLite DB everytime we get a location update
                             Intent tmp = new Intent()
                                     .setClass(MainActivity.this, StoreLocation.class);
-                            bindService(tmp, mConnection, Context.BIND_AUTO_CREATE);
+                            startService(tmp);
                             Toast.makeText(
                                     getApplicationContext(),
                                     "Each location update will occur every " + updateDelay/1000 + " seconds",
@@ -351,7 +351,9 @@ public class MainActivity extends AppCompatActivity implements
             active = false;
             msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
-            unbindService(mConnection);
+            Intent tmp = new Intent()
+                    .setClass(MainActivity.this, StoreLocation.class);
+            stopService(tmp);
 
         }
         else{

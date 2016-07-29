@@ -1,10 +1,13 @@
 package com.example.miker_000.breadcrumms;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,10 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,15 +38,6 @@ import java.util.TimeZone;
 public class MapLocationActivity extends AppCompatActivity
     implements OnMapReadyCallback {
 
-    //String constants referring to the keys of the Latitude and Longititude
-    //  of the two points used in LatLngBound (The Southwest point and the
-    //  Northeast point)
-    public static final String SW_BOUND_LAT = "LatLngBound_SW_Lat";
-    public static final String SW_BOUND_LNG = "LatLngBound_SW_Lng";
-    public static final String NE_BOUND_LAT = "LatLngBound_NE_Lat";
-    public static final String NE_BOUND_LNG = "LatLngBound_NE_Lng";
-
-
 
     private GoogleMap theMap;
     private TileOverlay heatMapOverlay;
@@ -53,6 +45,8 @@ public class MapLocationActivity extends AppCompatActivity
 
     private SQLiteDatabase db;
     private LocationDatabaseDbHelper dbHelper;
+
+    private SharedPreferences sharedPreferences;
 
 
 
@@ -62,6 +56,9 @@ public class MapLocationActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_location);
+
+        //set up shared preferences
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         //init DB variable
         dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
@@ -108,7 +105,9 @@ public class MapLocationActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.heatmap_settings:
-                //Open up Activity to set settings of heatmap
+                Intent intent = new Intent()
+                        .setClass(getApplicationContext(), HeatmapSettingsActivity.class);
+                startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -154,6 +153,36 @@ public class MapLocationActivity extends AppCompatActivity
         Date earliestDate = null;
         String order = LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED;
 
+        //Using the time interval set in the settings, generate latestDate and earliestDate
+        String interval = sharedPreferences.getString(
+                "heatmap_timeInterval",
+                getString(R.string.heatmapActivitySettings_interval_allDays)
+        );
+
+        //Set latestDate to the appropriate time in the past
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, cal.getActualMinimum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getActualMinimum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getActualMinimum(Calendar.SECOND));
+        //This month
+        if(interval.equals(getString(R.string.heatmapActivitySettings_interval_thisMonth))){
+            cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+            latestDate = cal.getTime();
+        }
+        //This Week
+        else if (interval.equals(getString(R.string.heatmapActivitySettings_interval_thisWeek))){
+            cal.set(Calendar.DAY_OF_WEEK, cal.getActualMinimum(Calendar.DAY_OF_WEEK));
+            latestDate = cal.getTime();
+        }
+        //Today
+        else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_today))){
+            latestDate = cal.getTime();
+        }
+        //If all the above if statements fail, that means that the user selected all days
+        //  so latestDate and earliestDate should remain null
+
+
+
         String query = LocationDatabaseDbHelper.gatherLocationsQueryString(bounds, latestDate, earliestDate,
                 limit, order);
 
@@ -166,14 +195,12 @@ public class MapLocationActivity extends AppCompatActivity
         protected Cursor doInBackground(Object... objects) {
             SQLiteDatabase db = (SQLiteDatabase) objects[0];
             String query = (String) objects[1];
-            Log.d("Tmp", "Making query");
             Cursor result = db.rawQuery(query, null);
             return result;
         }
 
         @Override
         protected void onPostExecute(Cursor result) {
-            Log.d("Tmp", "In PostExecute");
             int row_count = result.getCount();
             if(row_count > 0){
                 //convert from UTC to local timezone

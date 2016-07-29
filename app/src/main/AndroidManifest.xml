@@ -40,7 +40,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.miker_000.breadcrumms.MapLocationActivity" />
         </activity>
-        <activity android:name=".MainActivitySettingsActivity"></activity>
+        <activity android:name=".MainActivitySettingsActivity" />
+        <activity android:name=".HeatmapSettingsActivity"></activity>
     </application>
 
 </manifest>

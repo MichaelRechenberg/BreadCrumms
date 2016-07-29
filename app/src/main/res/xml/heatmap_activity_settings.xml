@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:title="Time Interval"
+        android:key="heatmap_timeInterval"
+        android:entries="@array/heatmapActivitySettings_entries"
+        android:entryValues="@array/heatmapActivitySettings_values"
+        android:defaultValue="@string/heatmapActivitySettings_interval_allDays"></ListPreference>
+</PreferenceScreen>

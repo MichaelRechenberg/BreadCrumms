@@ -28,6 +28,25 @@
         <item>1000</item>
     </string-array>
 
+    <string name="heatmapActivitySettings_interval_allDays">All Days</string>
+    <string name="heatmapActivitySettings_interval_thisMonth">This Month</string>
+    <string name="heatmapActivitySettings_interval_thisWeek">This Week</string>
+    <string name="heatmapActivitySettings_interval_today">Today</string>
+    <string-array name="heatmapActivitySettings_entries">
+        <item>@string/heatmapActivitySettings_interval_allDays</item>
+        <item>@string/heatmapActivitySettings_interval_thisMonth</item>
+        <item>@string/heatmapActivitySettings_interval_thisWeek</item>
+        <item>@string/heatmapActivitySettings_interval_today</item>
+    </string-array>
+
+
+    <string-array name="heatmapActivitySettings_values">
+        <item>@string/heatmapActivitySettings_interval_allDays</item>
+        <item>@string/heatmapActivitySettings_interval_thisMonth</item>
+        <item>@string/heatmapActivitySettings_interval_thisWeek</item>
+        <item>@string/heatmapActivitySettings_interval_today</item>
+    </string-array>
+
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>

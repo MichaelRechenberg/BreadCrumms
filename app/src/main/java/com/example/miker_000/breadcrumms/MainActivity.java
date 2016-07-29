@@ -20,6 +20,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.IBinder;
 
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +51,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 import java.util.TimeZone;
 
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements
     private LocationRequest locationRequest;
     private PendingIntent locationIntent;
     private LocationSettingsRequest.Builder locationSettingsRequest;
-    private final long updateDelay = 1000*60;
+    private long updateDelay;
     //Broadcast Receiver to update Lat/Lng on Activity everytime we get a new location update
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
@@ -97,13 +99,8 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
 
-
         //Get handle on shared preferences
-        sharedPreferences = getApplicationContext().getSharedPreferences(
-                getString(R.string.preference_file_key),
-                Context.MODE_PRIVATE
-        );
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         active = sharedPreferences.getBoolean("active", false);
         //The location Service is active, so have the button be "On"
         if(active){
@@ -112,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements
             ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
             button.setChecked(true);
         }
+        //set how many milliseconds to wait until the next location update
+        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
 
         //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
@@ -181,7 +180,9 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.main_activity_settings:
-                //Open up Activity to set settings of heatmap
+                Intent intent = new Intent()
+                        .setClass(getApplicationContext(), MainActivitySettingsActivity.class);
+                startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -208,8 +209,16 @@ public class MainActivity extends AppCompatActivity implements
 
     //Add the location request to FusedLocationAPI
     private void addMyLocationUpdates(){
-        //Check if we have the settings for making request,
-        //TODO: Add dialog to request for settings later
+        //Build the Location Request based off the user's setting for updateDelay,
+        // then check if we have the settings for making request,
+        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
+        locationRequest = new LocationRequest()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setFastestInterval(updateDelay)
+                .setInterval(updateDelay);
+        locationSettingsRequest = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .setAlwaysShow(true);
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(
                         googleApiClient,

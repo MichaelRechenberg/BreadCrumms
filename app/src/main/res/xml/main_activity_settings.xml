@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Default to 1 minuted delay -->
+    <ListPreference
+        android:title="Location Update Frequency"
+        android:key="updateDelay"
+        android:entries="@array/mainActivitySettings_entries"
+        android:entryValues="@array/mainActivitySettings_values"
+        android:summary="Note: More frequent updates mean more battery usage"
+        android:defaultValue="60000">
+
+    </ListPreference>
+
+</PreferenceScreen>

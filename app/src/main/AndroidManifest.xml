@@ -31,7 +31,9 @@
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".MapLocationActivity" />
+        <activity android:name=".MapLocationActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
         <activity
             android:name=".HeatMapSettingsActivity"
             android:label="@string/title_activity_heat_map_settings"

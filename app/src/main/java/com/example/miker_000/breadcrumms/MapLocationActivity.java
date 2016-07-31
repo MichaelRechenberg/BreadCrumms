@@ -221,8 +221,12 @@ public class MapLocationActivity extends AppCompatActivity
                     pts.add(tempPt);
                 }
 
+                //get opacity setting from SharedPreferences
+                final double opacity = ( (double)sharedPreferences.getInt("heatmap_opacity", 70) )/100;
+
                 HeatmapTileProvider heatmapProvider = new HeatmapTileProvider.Builder()
                         .data(pts)
+                        .opacity(opacity)
                         .build();
                 heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
 

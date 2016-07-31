@@ -6,4 +6,8 @@
         android:entries="@array/heatmapActivitySettings_entries"
         android:entryValues="@array/heatmapActivitySettings_values"
         android:defaultValue="@string/heatmapActivitySettings_interval_allDays"></ListPreference>
+    <com.example.miker_000.breadcrumms.SeekBarDialogPreference
+        android:title="Opacity"
+        android:key="heatmap_opacity"
+        android:defaultValue="70"></com.example.miker_000.breadcrumms.SeekBarDialogPreference>
 </PreferenceScreen>

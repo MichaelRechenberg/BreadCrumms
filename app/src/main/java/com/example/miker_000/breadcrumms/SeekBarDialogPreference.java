@@ -20,7 +20,7 @@ public class SeekBarDialogPreference extends DialogPreference {
 
     public SeekBarDialogPreference(Context context, AttributeSet attrs){
         super(context, attrs);
-        setDialogLayoutResource(R.layout.seekBarDialogPreference);
+        setDialogLayoutResource(R.layout.seekbar_dialog_preference);
     }
 
     //Get handle on the SeekBar of the Dialog

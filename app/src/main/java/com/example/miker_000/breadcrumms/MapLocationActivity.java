@@ -1,11 +1,14 @@
 package com.example.miker_000.breadcrumms;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
@@ -18,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -95,6 +99,28 @@ public class MapLocationActivity extends AppCompatActivity
                 fragmentManager.findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
         isHeatMapOn = false;
+    }
+
+    //Check for Internet connectivity for Google Maps
+    //If not connected to the internet, make a Toast notification
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if(!isConnected){
+            Toast.makeText(
+                    getApplicationContext(),
+                    R.string.heatmap_noWifi_toastMessage,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

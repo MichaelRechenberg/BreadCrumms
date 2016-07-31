@@ -84,7 +84,10 @@ public class MapLocationActivity extends AppCompatActivity
                 } else {
                     // The toggle is disabled
                     isHeatMapOn = false;
-                    heatMapOverlay.remove();
+                    if(heatMapOverlay!=null){
+                        heatMapOverlay.remove();
+                    }
+
                 }
             }
         });

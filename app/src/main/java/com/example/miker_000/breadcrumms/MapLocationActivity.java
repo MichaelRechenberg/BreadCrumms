@@ -5,11 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +37,11 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -137,6 +146,68 @@ public class MapLocationActivity extends AppCompatActivity
                 Intent intent = new Intent()
                         .setClass(getApplicationContext(), HeatmapSettingsActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.heatmap_snapshot:
+                Log.d("Tmp", "asdfasd;lkfsad");
+                //Save the picture to external storage
+
+                //External storage is not available
+                if(!isExternalStorageWritable()){
+                    return false;
+                }
+
+
+                final File path = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES),
+                    getString(R.string.heatmap_snapshotsDirName)
+                );
+
+
+                theMap.snapshot(
+                        new GoogleMap.SnapshotReadyCallback() {
+                            @Override
+                            public void onSnapshotReady(Bitmap bitmap) {
+                                try{
+                                    path.mkdirs();
+                                    int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
+                                    Log.d("Tmp", String.valueOf(photoCount));
+                                    File snapshot = new File(path, "map_snapshot"+photoCount);
+
+                                    FileOutputStream outputStream = new FileOutputStream(snapshot);
+                                    bitmap.compress(
+                                            Bitmap.CompressFormat.JPEG,
+                                            100,
+                                            outputStream
+                                    );
+
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    photoCount++;
+                                    editor.putInt("snapshotCounter", photoCount);
+                                    editor.commit();
+
+                                    Toast.makeText(
+                                            getApplication(),
+                                            "Saved!",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+
+                                    try{
+                                        outputStream.flush();
+                                        outputStream.close();
+                                    }
+                                    catch(IOException e){
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                                catch(FileNotFoundException e){
+                                    Log.e("MapLocation", "Could not find snapshot image file");
+                                }
+                            }
+                        }
+                );
+
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -262,5 +333,15 @@ public class MapLocationActivity extends AppCompatActivity
             result.close();
 
         }
+    }
+
+    //Helper method provided in Android Documenation for
+    //  saving a file to external storage
+    private static boolean isExternalStorageWritable(){
+        String state = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(state)){
+            return true;
+        }
+        return false;
     }
 }

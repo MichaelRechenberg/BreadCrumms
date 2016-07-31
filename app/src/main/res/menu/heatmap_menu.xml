@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/heatmap_snapshot"
+        android:icon="@drawable/ic_get_app_white_24dp"
+        android:title="Snapshot"
+        app:showAsAction="ifRoom">
+    </item>
+
     <!-- Settings, should always be in the overflow -->
     <item android:id="@+id/heatmap_settings"
         android:title="Settings"

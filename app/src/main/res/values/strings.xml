@@ -6,6 +6,7 @@
     <string name="no_longitude">Could Not Find Longitude</string>
     <string name="title_activity_heat_map_settings">Heat Map Settings</string>
     <string name="heatmap_noWifi_toastMessage">Connect to the Internet if Satellite Image Quality is Poor</string>
+    <string name="heatmap_snapshotsDirName">BreadCrumms</string>
 
     <!-- Strings related to Settings -->
 

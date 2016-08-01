@@ -135,6 +135,10 @@ public class MapLocationActivity extends AppCompatActivity
                     R.string.heatmap_noWifi_toastMessage,
                     Toast.LENGTH_LONG).show();
         }
+
+        if(theMap!=null){
+            changeMapType();
+        }
     }
 
     @Override
@@ -238,21 +242,8 @@ public class MapLocationActivity extends AppCompatActivity
 
         theMap = googleMap;
 
-        //Set the map type based on user's settings
-        String mapType = sharedPreferences.getString(
-                "heatmap_mapType",
-                getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE)
-        );
-        if(mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_NORMAL))){
-            theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        }
-        else if (mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN))){
-            theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        }
-        else{
-            theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        }
 
+        changeMapType();
 
 
         Location userLocation = (Location) getIntent().getExtras().get("userLocation");
@@ -392,5 +383,23 @@ public class MapLocationActivity extends AppCompatActivity
             return true;
         }
         return false;
+    }
+
+    //Helper method that sets the map type based on user's settings
+    private void changeMapType(){
+
+        String mapType = sharedPreferences.getString(
+                "heatmap_mapType",
+                getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE)
+        );
+        if(mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_NORMAL))){
+            theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+        else if (mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN))){
+            theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        }
+        else{
+            theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
     }
 }

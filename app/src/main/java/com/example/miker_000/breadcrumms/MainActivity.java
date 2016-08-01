@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Derp", "Updating UI");
             if(LocationResult.hasResult(intent)){
                 LocationResult result = LocationResult.extractResult(intent);
                 Location loc = result.getLastLocation();
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
-        toolbar.setTitle("BreadCrumms");
+        toolbar.setTitle("Bread Crumms");
         setSupportActionBar(toolbar);
 
         //Setup for location updates
@@ -254,7 +253,6 @@ public class MainActivity extends AppCompatActivity implements
 
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        Log.d("Derp", "Need to ask for permission");
                         try{
                             status.startResolutionForResult(MainActivity.this, REQUEST_FOR_LOCATION);
                         }
@@ -275,14 +273,13 @@ public class MainActivity extends AppCompatActivity implements
         if(requestCode == REQUEST_FOR_LOCATION){
             switch(resultCode){
                 case RESULT_OK:
-                    Log.d("Derp", "ASDFASFA");
                     addMyLocationUpdates();
                     break;
                 case RESULT_CANCELED:
                     //Notify user that location is necessary
                     Toast.makeText(
                             getApplicationContext(),
-                            "Location must be enabled for BreadCrumms to work",
+                            "Location must be enabled for Bread Crumms to work",
                             Toast.LENGTH_LONG).show();
                     ToggleButton button = (ToggleButton)
                             findViewById(R.id.myButton);
@@ -315,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        Log.d("Derp", "Location Request Removed");
     }
 
     private void updateUI(Location newLoc){

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BreadCrumms</string>
+    <string name="app_name">Bread Crumms</string>
     <string name="looking_for_location">Looking for Location</string>
     <string name="not_looking_for_location"><b>NOT</b> Looking for Location</string>
     <string name="no_latititude">Could Not Find Latitude</string>

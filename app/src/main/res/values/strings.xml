@@ -126,4 +126,6 @@
     <string name="latlng_dialog">Enter Latitude And Longitude</string>
     <string name="latitudeTitle">Latitude:</string>
     <string name="longitudeTitle">Longitude:</string>
+    <string name="tracking_on">Turn On Tracking</string>
+    <string name="tracking_off">Turn Off Tracking</string>
 </resources>

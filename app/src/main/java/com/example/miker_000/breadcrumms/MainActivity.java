@@ -104,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements
         active = sharedPreferences.getBoolean("active", false);
         //The location Service is active, so have the button be "On"
         if(active){
-            TextView msg = (TextView) findViewById(R.id.message);
-            msg.setText(R.string.not_looking_for_location);
             ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
             button.setChecked(true);
         }
@@ -137,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements
         Intent tempIntent = new Intent()
                 .setPackage(getApplicationContext().getPackageName())
                 .setAction(StoreLocation.LOCATION_UPDATE);
-        //TODO: Change Flag to Cancel Current?
         locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
                 StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -245,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements
                             Toast.makeText(
                                     getApplicationContext(),
                                     "Each location update will occur every " + updateDelay/1000 + " seconds",
-                                    Toast.LENGTH_LONG
+                                    Toast.LENGTH_SHORT
                             ).show();
 
                             Log.d("Derp", "Location request added");
@@ -290,9 +287,6 @@ public class MainActivity extends AppCompatActivity implements
                     ToggleButton button = (ToggleButton)
                             findViewById(R.id.myButton);
                     button.setChecked(false);
-                    TextView locText = (TextView)
-                            findViewById(R.id.message);
-                    locText.setText(R.string.not_looking_for_location);
                     active = false;
 
 
@@ -338,11 +332,9 @@ public class MainActivity extends AppCompatActivity implements
 
 
     public void toggleFindLocation(View view){
-        TextView msg = (TextView) findViewById(R.id.message);
 
         if(active){
             active = false;
-            msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
             Intent tmp = new Intent()
                     .setClass(MainActivity.this, StoreLocation.class);
@@ -351,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         else{
             active = true;
-            msg.setText(R.string.looking_for_location);
             addMyLocationUpdates();
             registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
 

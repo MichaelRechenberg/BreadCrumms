@@ -15,6 +15,9 @@ import android.util.Log;
 
 import com.google.android.gms.location.LocationResult;
 
+/**
+ * Service to store the location of the user in local database
+ */
 public class StoreLocation extends Service {
 
     public static final String LOCATION_UPDATE = "com.example.miker_000.breadcrumms.LOCATION_UPDATE";
@@ -43,7 +46,6 @@ public class StoreLocation extends Service {
                             LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE,
                             loc.getLongitude()
                     );
-                    //Todo: Async task
                     long row_id = db.insert(LocationDatabaseContract.LocationEntry.TABLE_NAME,
                             null,
                             values);
@@ -70,7 +72,6 @@ public class StoreLocation extends Service {
         IntentFilter filter = new IntentFilter(StoreLocation.LOCATION_UPDATE);
         registerReceiver(locationReceiver, filter);
         LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
-        //TODO: Place getWritableDatabase in AsyncTask to not block UI thread
         db = dbHelper.getWritableDatabase();
 
         //Start the service in the foreground and add notification

@@ -54,7 +54,10 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.TimeZone;
 
-
+/**
+ * Launcher activity that provides way to start/stop location tracking
+ *  and launch MapLocationActivity to view heatmap
+ */
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
 

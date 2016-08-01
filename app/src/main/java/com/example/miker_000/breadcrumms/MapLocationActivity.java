@@ -52,6 +52,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * Displays a GoogleMap Fragment that will show a heat map of all the points stored
+ *  within the user's desired range of dates (All Time, Past Month, Past Week, Today)
+ *
+ *  User can store a snapshot of the Google Map
+ *  User can manually set location via a Dialog
+ */
 public class MapLocationActivity extends AppCompatActivity
     implements OnMapReadyCallback, SetLatLngDialogFragment.LatLngDialogListener{
 

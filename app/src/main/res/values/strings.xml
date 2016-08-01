@@ -34,7 +34,7 @@
     <string name="heatmapActivitySettings_interval_thisMonth">This Month</string>
     <string name="heatmapActivitySettings_interval_thisWeek">This Week</string>
     <string name="heatmapActivitySettings_interval_today">Today</string>
-    <string-array name="heatmapActivitySettings_entries">
+    <string-array name="heatmapActivitySettings_timeInterval_entries">
         <item>@string/heatmapActivitySettings_interval_allDays</item>
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
@@ -42,12 +42,30 @@
     </string-array>
 
 
-    <string-array name="heatmapActivitySettings_values">
+    <string-array name="heatmapActivitySettings_timeInterval_values">
         <item>@string/heatmapActivitySettings_interval_allDays</item>
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
         <item>@string/heatmapActivitySettings_interval_today</item>
     </string-array>
+
+    <string name="heatmapActivitySettings_mapType_MAP_TYPE_NORMAL">Normal</string>
+    <string name="heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE">Satellite</string>
+    <string name="heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN">Terrain</string>
+
+    <string-array name="heatmapActivitySettings_mapType_entries">
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_NORMAL</item>
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE</item>
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN</item>
+    </string-array>
+
+    <string-array name="heatmapActivitySettings_mapType_values">
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_NORMAL</item>
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE</item>
+        <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN</item>
+    </string-array>
+
+
 
 
     <!-- Example General settings -->

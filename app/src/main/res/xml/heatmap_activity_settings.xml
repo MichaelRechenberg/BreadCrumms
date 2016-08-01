@@ -3,11 +3,18 @@
     <ListPreference
         android:title="Time Interval"
         android:key="heatmap_timeInterval"
-        android:entries="@array/heatmapActivitySettings_entries"
-        android:entryValues="@array/heatmapActivitySettings_values"
+        android:entries="@array/heatmapActivitySettings_timeInterval_entries"
+        android:entryValues="@array/heatmapActivitySettings_timeInterval_values"
         android:defaultValue="@string/heatmapActivitySettings_interval_allDays"></ListPreference>
+
     <com.example.miker_000.breadcrumms.SeekBarDialogPreference
         android:title="Opacity"
         android:key="heatmap_opacity"
         android:defaultValue="70"></com.example.miker_000.breadcrumms.SeekBarDialogPreference>
+    <ListPreference
+        android:title="Map Type"
+        android:key="heatmap_mapType"
+        android:entries="@array/heatmapActivitySettings_mapType_entries"
+        android:entryValues="@array/heatmapActivitySettings_mapType_values"
+        android:defaultValue="@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE"></ListPreference>
 </PreferenceScreen>

@@ -237,7 +237,22 @@ public class MapLocationActivity extends AppCompatActivity
 
 
         theMap = googleMap;
-        theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+
+        //Set the map type based on user's settings
+        String mapType = sharedPreferences.getString(
+                "heatmap_mapType",
+                getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE)
+        );
+        if(mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_NORMAL))){
+            theMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+        else if (mapType.equals(getString(R.string.heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN))){
+            theMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        }
+        else{
+            theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+
 
 
         Location userLocation = (Location) getIntent().getExtras().get("userLocation");

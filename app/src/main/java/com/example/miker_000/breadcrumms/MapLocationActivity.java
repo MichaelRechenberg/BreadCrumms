@@ -117,6 +117,7 @@ public class MapLocationActivity extends AppCompatActivity
         super.onStart();
 
 
+        //Taken from Android Documentation
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -148,7 +149,6 @@ public class MapLocationActivity extends AppCompatActivity
                 startActivity(intent);
                 return true;
             case R.id.heatmap_snapshot:
-                Log.d("Tmp", "asdfasd;lkfsad");
                 //Save the picture to external storage
 
                 //External storage is not available
@@ -170,8 +170,7 @@ public class MapLocationActivity extends AppCompatActivity
                                 try{
                                     path.mkdirs();
                                     int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
-                                    Log.d("Tmp", String.valueOf(photoCount));
-                                    File snapshot = new File(path, "map_snapshot"+photoCount);
+                                    File snapshot = new File(path, "map_snapshot00"+photoCount+".jpeg");
 
                                     FileOutputStream outputStream = new FileOutputStream(snapshot);
                                     bitmap.compress(
@@ -180,16 +179,24 @@ public class MapLocationActivity extends AppCompatActivity
                                             outputStream
                                     );
 
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    photoCount++;
-                                    editor.putInt("snapshotCounter", photoCount);
-                                    editor.commit();
+                                    //Have MediaScanner scan file so the user can immediately access it
+                                    MediaScannerConnection.scanFile(
+                                            getApplicationContext(),
+                                            new String[] { snapshot.getAbsolutePath() },
+                                            null,
+                                            null
+                                    );
 
                                     Toast.makeText(
                                             getApplication(),
                                             "Saved!",
                                             Toast.LENGTH_SHORT
                                     ).show();
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    photoCount++;
+                                    editor.putInt("snapshotCounter", photoCount);
+                                    editor.commit();
+
 
                                     try{
                                         outputStream.flush();
@@ -247,7 +254,6 @@ public class MapLocationActivity extends AppCompatActivity
      */
     private void makeHeatMap(){
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
-        //Todo: Import settings from sharedPreferences
         String limit = null;
         Date latestDate = null;
         Date earliestDate = null;

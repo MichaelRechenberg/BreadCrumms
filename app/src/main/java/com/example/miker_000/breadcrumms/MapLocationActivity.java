@@ -1,5 +1,6 @@
 package com.example.miker_000.breadcrumms;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +25,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -49,7 +53,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class MapLocationActivity extends AppCompatActivity
-    implements OnMapReadyCallback {
+    implements OnMapReadyCallback, SetLatLngDialogFragment.LatLngDialogListener{
 
 
     private GoogleMap theMap;
@@ -215,11 +219,18 @@ public class MapLocationActivity extends AppCompatActivity
                 );
 
                 return true;
+
+            case R.id.heatmap_setLocation:
+                //open Dialog for user to set Lat/Lng manually
+                SetLatLngDialogFragment dialog = new SetLatLngDialogFragment();
+                dialog.show(getSupportFragmentManager(), "SetLatLngDialogFragment");
             default:
                 return super.onOptionsItemSelected(item);
         }
 
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -246,6 +257,23 @@ public class MapLocationActivity extends AppCompatActivity
         //See: https://developers.google.com/maps/documentation/android-api/views#zoom
         theMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startLocation, 15));
 
+    }
+
+
+    //Move the map the the desired lat/lng, not changing zoom level
+    //This is called when the user hits OK on the SetLatLngDialogFragment
+    public void moveCameraFromDialog(double lat, double lng){
+        //Inavlid coordinates, let user know there's a mistake
+        if(lat < -90 || lat > 90 || lng < -180 || lng >180){
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Invalid Coordinates, Please Try Again",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+        else{
+            theMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));
+        }
     }
 
 

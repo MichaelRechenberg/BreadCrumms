@@ -141,9 +141,15 @@
         about the user or any information that could relate the location information stored
         to any particular person.</p>
         <p>If you uninstall Bread Crumms the database that stores your location will be deleted.</p>
+        <p>This app uses the Google Maps API for Android in order to show satellite imagery
+        of locations.  Google Maps may use cookies.  Links to Google\'s Privacy Policies and Terms of
+        Service are http://www.google.com/policies/privacy
+        and https://www.google.com/intl/ALL/help/terms_maps.html</p>
         <h2>Who Has Access To Your Information</h2>
-        <p>Only the Bread Crumms app has access to any aforementioned collected information.  The data
+        <p>Only the Bread Crumms app has access to any aforementioned collected information.  That data
         is stored in a local database and the data never leaves your phone nor is shared with any third parties.</p>
+        <h2>Your Consent<h2>
+        <p>By using this app you consent to this privacy policy.</p>
         <h2>Questions About Privacy Policy</h2>
         <p>If you have any questions regarding what data Bread Crumms uses feel free to contact me at:
         michaelrechenberg@oawl.net</p>

@@ -12,4 +12,9 @@
 
     </ListPreference>
 
+    <com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference
+        android:title="Privacy Policy"
+        android:dialogTitle="Privacy Policy">
+    </com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference>
+
 </PreferenceScreen>

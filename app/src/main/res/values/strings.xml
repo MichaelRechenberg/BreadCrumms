@@ -128,4 +128,25 @@
     <string name="longitudeTitle">Longitude:</string>
     <string name="tracking_on">Turn On Tracking</string>
     <string name="tracking_off">Turn Off Tracking</string>
+
+    <string name="privacy_policy">
+        <![CDATA[
+        <h1>Bread Crumms Privacy Policy</h1>
+        <h2>What This App Collects</h2>
+        <p>Bread Crumms periodically collects the latitude and longitude of your phone\'s location along
+        with the time that the location was recorded and stores this information in a
+        database within your phone. This database is only accessible via the Bread Crumms app. Bread Crumms
+        only collects this information when the tracking service
+        has been turned on by the user. Bread Crumms <b>DOES NOT</b> store any personally identifiable information
+        about the user or any information that could relate the location information stored
+        to any particular person.</p>
+        <p>If you uninstall Bread Crumms the database that stores your location will be deleted.</p>
+        <h2>Who Has Access To Your Information</h2>
+        <p>Only the Bread Crumms app has access to any aforementioned collected information.  The data
+        is stored in a local database and the data never leaves your phone nor is shared with any third parties.</p>
+        <h2>Questions About Privacy Policy</h2>
+        <p>If you have any questions regarding what data Bread Crumms uses feel free to contact me at:
+        michaelrechenberg@oawl.net</p>
+        ]]>
+    </string>
 </resources>

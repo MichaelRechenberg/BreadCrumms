@@ -144,7 +144,8 @@
         <p>This app uses the Google Maps API for Android in order to show satellite imagery
         of locations.  Google Maps may use cookies.  Links to Google\'s Privacy Policies and Terms of
         Service are http://www.google.com/policies/privacy
-        and https://www.google.com/intl/ALL/help/terms_maps.html</p>
+        and https://www.google.com/intl/ALL/help/terms_maps.html.  Usage of Bread Crumms binds
+        you to Google's Terms of Service</p>
         <h2>Who Has Access To Your Information</h2>
         <p>Only the Bread Crumms app has access to any aforementioned collected information.  That data
         is stored in a local database and the data never leaves your phone nor is shared with any third parties.</p>

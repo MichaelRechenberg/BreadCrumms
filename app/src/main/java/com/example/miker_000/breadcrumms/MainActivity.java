@@ -1,10 +1,13 @@
 package com.example.miker_000.breadcrumms;
 
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.content.IntentFilter;
@@ -12,6 +15,7 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -23,9 +27,11 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -103,6 +109,52 @@ public class MainActivity extends AppCompatActivity implements
 
         //Get handle on shared preferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+        //Show EULA the first time the user installs app and on version updates
+        //Code adapted from http://www.donnfelker.com/android-a-simple-eula-for-your-android-apps/
+        int versionNumber=1;
+        try{
+            versionNumber = getPackageManager()
+                    .getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES)
+                    .versionCode;
+        }
+        catch(PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+
+        final String EULA_KEY = "EULA_" + versionNumber;
+        boolean hasBeenShown = sharedPreferences.getBoolean(EULA_KEY, false);
+        if(!hasBeenShown){
+            final Activity thisActivity = this;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("EULA Notice")
+                    .setMessage(Html.fromHtml(getString(R.string.EULA_text)))
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.EULA_PositiveButton, new Dialog.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Mark this version as read.
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(EULA_KEY, true);
+                            editor.commit();
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new Dialog.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Close the activity as they have declined the EULA
+                            thisActivity.finish();
+                        }
+
+                    });
+            builder.create().show();
+        }
+
+
         active = sharedPreferences.getBoolean("active", false);
         //The location Service is active, so have the button be "On"
         if(active){

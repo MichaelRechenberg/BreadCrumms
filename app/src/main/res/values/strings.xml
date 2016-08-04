@@ -135,25 +135,36 @@
         <h2>What This App Collects</h2>
         <p>Bread Crumms periodically collects the latitude and longitude of your phone\'s location along
         with the time that the location was recorded and stores this information in a
-        database within your phone. This database is only accessible via the Bread Crumms app. Bread Crumms
-        only collects this information when the tracking service
-        has been turned on by the user. Bread Crumms <b>DOES NOT</b> store any personally identifiable information
+        database within your phone. This database is only accessible via the Bread Crumms app and cannot
+        be accessed remotely. Bread Crumms only collects this information when the tracking service
+        has been turned on by the user. Bread Crumms <b>DOES NOT</b> store or use any personally identifiable information
         about the user or any information that could relate the location information stored
         to any particular person.</p>
         <p>If you uninstall Bread Crumms the database that stores your location will be deleted.</p>
         <p>This app uses the Google Maps API for Android in order to show satellite imagery
-        of locations.  Google Maps may use cookies.  Links to Google\'s Privacy Policies and Terms of
+        of locations.  When initially opening up the Heat Map Activity your current location is used
+        to set the camera of the Google Map.  Google Maps may use cookies.  Links to Google\'s Privacy Policies and Terms of
         Service are http://www.google.com/policies/privacy
         and https://www.google.com/intl/ALL/help/terms_maps.html.  Usage of Bread Crumms binds
-        you to Google's Terms of Service</p>
+        you to Google\'s Terms of Service.</p>
         <h2>Who Has Access To Your Information</h2>
-        <p>Only the Bread Crumms app has access to any aforementioned collected information.  That data
-        is stored in a local database and the data never leaves your phone nor is shared with any third parties.</p>
+        <p>Only the Bread Crumms app has access to any aforementioned collected information stored within
+        the local database.  This database and its contents are stored on your phone only.</p>
         <h2>Your Consent<h2>
         <p>By using this app you consent to this privacy policy.</p>
         <h2>Questions About Privacy Policy</h2>
         <p>If you have any questions regarding what data Bread Crumms uses feel free to contact me at:
         michaelrechenberg@oawl.net</p>
+        ]]>
+    </string>
+    <string name="EULA_PositiveButton">I Agree</string>
+    <string name="EULA_text">
+        <![CDATA[
+        <p><b>By Clicking \"I Agree\" you accept the following End User License Agreement.</b><p>
+
+        ADD IN EULA TEXT HERE!!!
+
+        <p>By clicking \"I Agree\" you accept this End User License Agreement</p>
         ]]>
     </string>
 </resources>

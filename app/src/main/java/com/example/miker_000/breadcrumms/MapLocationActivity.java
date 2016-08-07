@@ -1,6 +1,5 @@
 package com.example.miker_000.breadcrumms;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,11 +11,9 @@ import android.location.Location;
 import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,9 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -45,12 +40,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Displays a GoogleMap Fragment that will show a heat map of all the points stored
@@ -71,6 +63,7 @@ public class MapLocationActivity extends AppCompatActivity
     private LocationDatabaseDbHelper dbHelper;
 
     private SharedPreferences sharedPreferences;
+    private Switch heatmapSwitch;
 
 
 
@@ -95,8 +88,8 @@ public class MapLocationActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         //set up toggle switch
-        Switch heatMapSwitch = (Switch) findViewById(R.id.heatMapSwitch);
-        heatMapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        heatmapSwitch = (Switch) findViewById(R.id.heatMapSwitch);
+        heatmapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //Turn on heatmap overlay
                 if (isChecked) {
@@ -294,6 +287,11 @@ public class MapLocationActivity extends AppCompatActivity
      * Make the heat map using the settings set by the user
      */
     private void makeHeatMap(){
+        Toast.makeText(
+                getApplicationContext(),
+                getString(R.string.heatmapBeingGeneratedToastText),
+                Toast.LENGTH_LONG
+        ).show();
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
         String limit = null;
         Date latestDate = null;
@@ -333,54 +331,62 @@ public class MapLocationActivity extends AppCompatActivity
         String query = LocationDatabaseDbHelper.gatherLocationsQueryString(bounds, latestDate, earliestDate,
                 limit, order);
 
-        new DumpAllEntries().execute(db, query);
+        //disable the switch until the heatmap is generated
+        heatmapSwitch.setEnabled(false);
+        new GatherPointsAndGenerateHeatmap().execute(db, query);
 
     }
 
-    private class DumpAllEntries extends AsyncTask<Object, Integer, Cursor> {
+    /**
+     * Async Task that querys the database for the points within the bounds of the Google Map
+     *  and then takes those points and generates a HeatmapTileProvider.
+     *
+     * The heatmapTileOverlay is updated within postExecute
+     *
+     * The first argument is the SQLiteDatabase to query
+     * The second argument is the query you wish to execute
+     */
+    private class GatherPointsAndGenerateHeatmap extends AsyncTask<Object, Integer, HeatmapTileProvider> {
         @Override
-        protected Cursor doInBackground(Object... objects) {
+        protected HeatmapTileProvider doInBackground(Object... objects) {
             SQLiteDatabase db = (SQLiteDatabase) objects[0];
             String query = (String) objects[1];
             Cursor result = db.rawQuery(query, null);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Cursor result) {
             int row_count = result.getCount();
-            if(row_count > 0){
-                //convert from UTC to local timezone
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                df.setTimeZone(TimeZone.getTimeZone("UTC"));
+            HeatmapTileProvider heatmapProvider = null;
+            if(row_count > 0) {
                 int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
                 int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
-                int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
-                Log.d("SQL", String.valueOf(row_count) + " rows were returned");
-
                 //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
                 ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
-                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
+                for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
                     LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
                     pts.add(tempPt);
                 }
-
                 //get opacity setting from SharedPreferences
-                final double opacity = ( (double)sharedPreferences.getInt("heatmap_opacity", 70) )/100;
+                final double opacity = ((double) sharedPreferences.getInt("heatmap_opacity", 70)) / 100;
 
-                HeatmapTileProvider heatmapProvider = new HeatmapTileProvider.Builder()
+                heatmapProvider = new HeatmapTileProvider.Builder()
                         .data(pts)
                         .opacity(opacity)
                         .build();
-                heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
-
             }
-
             //release the cursor
             result.close();
 
+            return heatmapProvider;
+        }
+
+        @Override
+        protected void onPostExecute(HeatmapTileProvider heatmapProvider) {
+            if(heatmapProvider!=null){
+                heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
+            }
+            //re-enable the switch so user can toggle it again
+            heatmapSwitch.setEnabled(true);
         }
     }
+
 
     //Helper method provided in Android Documenation for
     //  saving a file to external storage

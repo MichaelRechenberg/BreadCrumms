@@ -76,8 +76,8 @@ public class StoreLocation extends Service {
 
         //Start the service in the foreground and add notification
         Notification notification = new Notification.Builder(getApplicationContext())
-                .setContentTitle("BreadCrumms")
-                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light_normal)
+                .setContentTitle(getString(R.string.app_name))
+                .setSmallIcon(R.mipmap.bc_black_and_white)
                 .setContentText("Location Tracking Is On")
                 .build();
 

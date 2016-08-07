@@ -197,7 +197,7 @@ public class MapLocationActivity extends AppCompatActivity
 
                                     Toast.makeText(
                                             getApplication(),
-                                            "Saved!",
+                                            "Snapshot Saved!",
                                             Toast.LENGTH_SHORT
                                     ).show();
                                     SharedPreferences.Editor editor = sharedPreferences.edit();

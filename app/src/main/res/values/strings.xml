@@ -129,6 +129,8 @@
     <string name="tracking_on">Turn On Tracking</string>
     <string name="tracking_off">Turn Off Tracking</string>
     <string name="heatmapBeingGeneratedToastText">Generating Heatmap: This may take a few seconds</string>
+    <string name="setLatLngDialogFragmentMessage">Set Map\'s Location</string>
+
     <string name="privacy_policy">
         <![CDATA[
         <h1>Bread Crumms Privacy Policy</h1>
@@ -167,4 +169,5 @@
         <p>By clicking \"I Agree\" you accept this End User License Agreement</p>
         ]]>
     </string>
+    <string name="activity_main_locationTitle">Last Registered Location:</string>
 </resources>

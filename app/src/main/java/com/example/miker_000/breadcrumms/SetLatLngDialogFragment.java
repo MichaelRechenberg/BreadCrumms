@@ -37,6 +37,7 @@ public class SetLatLngDialogFragment extends DialogFragment {
 
         //Init custom layout and callback methods
         builder.setView(inflater.inflate(R.layout.set_latlng_dialog, null))
+                .setTitle(getString(R.string.setLatLngDialogFragmentMessage))
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

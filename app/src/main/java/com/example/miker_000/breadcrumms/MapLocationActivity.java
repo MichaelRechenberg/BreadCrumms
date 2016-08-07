@@ -30,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -225,8 +226,20 @@ public class MapLocationActivity extends AppCompatActivity
                 return true;
 
             case R.id.heatmap_setLocation:
+
+                //Have the EditText's of the SetLatLangDialogFragment be set to
+                //  the map's current LatLng, with 4 digits of precision after the decimal point
+                LatLng currentMapLatLng = theMap.getCameraPosition().target;
+                double lat = currentMapLatLng.latitude;
+                double lng = currentMapLatLng.longitude;
+                lat = (double)Math.round(lat * 10000d) / 10000d;
+                lng = (double)Math.round(lng * 10000d) / 10000d;
                 //open Dialog for user to set Lat/Lng manually
                 SetLatLngDialogFragment dialog = new SetLatLngDialogFragment();
+                Bundle args = new Bundle();
+                args.putDouble("lat", lat);
+                args.putDouble("lng", lng);
+                dialog.setArguments(args);
                 dialog.show(getSupportFragmentManager(), "SetLatLngDialogFragment");
             default:
                 return super.onOptionsItemSelected(item);

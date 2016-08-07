@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 
 /**
@@ -29,16 +30,25 @@ public class SetLatLngDialogFragment extends DialogFragment {
     }
 
 
+
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.set_latlng_dialog, null);
+        EditText latText = (EditText) view.findViewById(R.id.latitude);
+        EditText lngText = (EditText) view.findViewById(R.id.longitude);
+
+        latText.setText(String.valueOf(getArguments().getDouble("lat")));
+        lngText.setText(String.valueOf(getArguments().getDouble("lng")));
+
 
         //Init custom layout and callback methods
-        builder.setView(inflater.inflate(R.layout.set_latlng_dialog, null))
+        builder.setView(view)
                 .setTitle(getString(R.string.setLatLngDialogFragmentMessage))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         double lat;
@@ -55,7 +65,9 @@ public class SetLatLngDialogFragment extends DialogFragment {
                         latLngDialogListener.moveCameraFromDialog(lat, lng);
                     }
                 })
-                .setNegativeButton("Cancel", null);
+                .setNegativeButton(getString(android.R.string.cancel), null);
         return builder.create();
     }
+
+
 }

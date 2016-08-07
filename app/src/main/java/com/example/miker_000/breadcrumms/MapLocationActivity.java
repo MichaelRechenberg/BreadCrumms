@@ -41,6 +41,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -335,6 +337,27 @@ public class MapLocationActivity extends AppCompatActivity
         //Today
         else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_today))){
             latestDate = cal.getTime();
+        }
+        else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_custom))){
+            //NOTE: SQLite uses [1-12] for its Months
+            Log.d("Tmp", "NEED TO IMPLEMENT THIS CUSTOM RANGE");
+            String latestDateString = sharedPreferences.getString(
+                    SetCustomTimeIntervalDialogPreference.LATEST_DATE_STRING_KEY,
+                    SetCustomTimeIntervalDialogPreference.DEFAULT_LATEST_DATE
+            );
+            String earliestDateString = sharedPreferences.getString(
+                    SetCustomTimeIntervalDialogPreference.EARLIEST_DATE_STRING_KEY,
+                    SetCustomTimeIntervalDialogPreference.DEFAULT_EARLIEST_DATE
+            );
+
+            SimpleDateFormat df = new SimpleDateFormat(SetCustomTimeIntervalDialogPreference.datePattern);
+            try{
+                latestDate = df.parse(latestDateString);
+                earliestDate = df.parse(earliestDateString);
+            }
+            catch(ParseException e){
+                e.printStackTrace();
+            }
         }
         //If all the above if statements fail, that means that the user selected all days
         //  so latestDate and earliestDate should remain null

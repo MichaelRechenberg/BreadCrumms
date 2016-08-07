@@ -34,11 +34,14 @@
     <string name="heatmapActivitySettings_interval_thisMonth">This Month</string>
     <string name="heatmapActivitySettings_interval_thisWeek">This Week</string>
     <string name="heatmapActivitySettings_interval_today">Today</string>
+    <string name="heatmapActivitySettings_interval_custom">Custom Range</string>
+
     <string-array name="heatmapActivitySettings_timeInterval_entries">
         <item>@string/heatmapActivitySettings_interval_allDays</item>
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
         <item>@string/heatmapActivitySettings_interval_today</item>
+        <item>@string/heatmapActivitySettings_interval_custom</item>
     </string-array>
 
 
@@ -47,6 +50,7 @@
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
         <item>@string/heatmapActivitySettings_interval_today</item>
+        <item>@string/heatmapActivitySettings_interval_custom</item>
     </string-array>
 
     <string name="heatmapActivitySettings_mapType_MAP_TYPE_NORMAL">Normal</string>

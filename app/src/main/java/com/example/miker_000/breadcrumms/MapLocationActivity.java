@@ -340,7 +340,6 @@ public class MapLocationActivity extends AppCompatActivity
         }
         else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_custom))){
             //NOTE: SQLite uses [1-12] for its Months
-            Log.d("Tmp", "NEED TO IMPLEMENT THIS CUSTOM RANGE");
             String latestDateString = sharedPreferences.getString(
                     SetCustomTimeIntervalDialogPreference.LATEST_DATE_STRING_KEY,
                     SetCustomTimeIntervalDialogPreference.DEFAULT_LATEST_DATE

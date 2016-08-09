@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.io.File;
@@ -60,6 +61,7 @@ public class MapLocationActivity extends AppCompatActivity
 
     private GoogleMap theMap;
     private TileOverlay heatMapOverlay;
+    private Gradient theMapGradient;
     private boolean isHeatMapOn;
 
     private SQLiteDatabase db;
@@ -108,6 +110,23 @@ public class MapLocationActivity extends AppCompatActivity
                 }
             }
         });
+
+        //init gradient
+        final int[] gradientColors = {
+                //blue
+                Color.rgb(0, 0, 180),
+                //green
+                Color.rgb(102, 255, 0),
+                //red
+                Color.rgb(255, 0, 0)
+        };
+
+        final float[] gradientStartPoints = {
+                0.2f,
+                0.7f,
+                1.0f
+        };
+        theMapGradient = new Gradient(gradientColors, gradientStartPoints);
 
         //Set up the Google Map Object
         FragmentManager fragmentManager= getSupportFragmentManager();
@@ -404,6 +423,7 @@ public class MapLocationActivity extends AppCompatActivity
                 heatmapProvider = new HeatmapTileProvider.Builder()
                         .data(pts)
                         .opacity(opacity)
+                        .gradient(theMapGradient)
                         .build();
             }
             //release the cursor

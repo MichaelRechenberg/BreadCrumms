@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements
     private PendingIntent locationIntent;
     private LocationSettingsRequest.Builder locationSettingsRequest;
     private long updateDelay;
+
+    private boolean hasAcceptedEULA;
     //Broadcast Receiver to update Lat/Lng on Activity everytime we get a new location update
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
@@ -124,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         final String EULA_KEY = "EULA_" + versionNumber;
-        boolean hasBeenShown = sharedPreferences.getBoolean(EULA_KEY, false);
-        if(!hasBeenShown){
+        hasAcceptedEULA = sharedPreferences.getBoolean(EULA_KEY, false);
+        if(!hasAcceptedEULA){
             final Activity thisActivity = this;
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     .setTitle("EULA Notice")
@@ -232,8 +234,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            updateUI(mLastLocation);
+            //get the user's current location only after they accepted the EULA
+            if(hasAcceptedEULA){
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                updateUI(mLastLocation);
+            }
         }
         catch(SecurityException e){
             //pass silently

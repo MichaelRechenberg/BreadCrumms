@@ -10,10 +10,10 @@ import android.view.View;
 import android.widget.TextView;
 
 /**
- * Displays the HTML of the Privacy Policy in MainActivity's Settings
+ * Displays the HTML of the About Section of the app within MainActivity's Settings
  */
-public class PrivacyPolicyDialogPreference extends DialogPreference {
-    public PrivacyPolicyDialogPreference(Context context, AttributeSet attrs){
+public class AboutSectionDialogPreference extends DialogPreference {
+    public AboutSectionDialogPreference(Context context, AttributeSet attrs){
         super(context, attrs);
         //Remove the negative button
         setNegativeButtonText(null);
@@ -24,10 +24,10 @@ public class PrivacyPolicyDialogPreference extends DialogPreference {
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
 
-        TextView privacyPolicyTextview = (TextView) view.findViewById(R.id.htmlTextView);
-        Spanned sp = Html.fromHtml(getContext().getString(R.string.privacy_policy));
-        privacyPolicyTextview.setText(sp);
-        privacyPolicyTextview.setMovementMethod(new ScrollingMovementMethod());
+        TextView aboutSectionTextView = (TextView) view.findViewById(R.id.htmlTextView);
+        Spanned sp = Html.fromHtml(getContext().getString(R.string.aboutSection_text));
+        aboutSectionTextView.setText(sp);
+        aboutSectionTextView.setMovementMethod(new ScrollingMovementMethod());
 
     }
 }

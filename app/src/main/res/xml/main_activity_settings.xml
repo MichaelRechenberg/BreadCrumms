@@ -25,4 +25,10 @@
         android:dialogTitle="Privacy Policy">
     </com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference>
 
+    <com.example.miker_000.breadcrumms.AboutSectionDialogPreference
+        android:title="About"
+        android:dialogTitle="About">
+
+    </com.example.miker_000.breadcrumms.AboutSectionDialogPreference>
+
 </PreferenceScreen>

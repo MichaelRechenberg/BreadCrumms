@@ -69,6 +69,24 @@
         <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN</item>
     </string-array>
 
+    <string name="mainActivitySettings_locationPrecision_HIGH_ACCURACY">
+        High Accuracy
+    </string>
+    <string name="mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY">
+        Medium Accuracy
+    </string>
+
+
+    <string-array name="mainActivitySettings_locationPrecision_entries">
+        <item>@string/mainActivitySettings_locationPrecision_HIGH_ACCURACY</item>
+        <item>@string/mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY</item>
+    </string-array>
+
+    <string-array name="mainActivitySettings_locationPrecision_values">
+        <item>@string/mainActivitySettings_locationPrecision_HIGH_ACCURACY</item>
+        <item>@string/mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY</item>
+    </string-array>
+
 
 
 

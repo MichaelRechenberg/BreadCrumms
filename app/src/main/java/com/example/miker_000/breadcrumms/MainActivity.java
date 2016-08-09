@@ -161,8 +161,7 @@ public class MainActivity extends AppCompatActivity implements
             ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
             button.setChecked(true);
         }
-        //set how many milliseconds to wait until the next location update
-        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
+
 
         //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
@@ -179,23 +178,12 @@ public class MainActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
                 .build();
-        locationRequest = new LocationRequest()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(updateDelay)
-                .setInterval(updateDelay);
-        //have pendingIntent send broadcast that will be picked up
-        //  by any registered BroadcastReceivers in the current package
-        //  that have the action StoreLocation.LOCATION_UPDATE set
-        Intent tempIntent = new Intent()
-                .setPackage(getApplicationContext().getPackageName())
-                .setAction(StoreLocation.LOCATION_UPDATE);
-        locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        locationSettingsRequest = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-                .setAlwaysShow(true);
         googleApiClient.connect();
+
+        //initialize the appropriate member variables for the LocationRequest with the
+        //  values set in the settings
+        //look at documentation for initLocationInformation() for more information
+        initLocationInformation();
 
 
     }
@@ -262,14 +250,7 @@ public class MainActivity extends AppCompatActivity implements
     private void addMyLocationUpdates(){
         //Build the Location Request based off the user's setting for updateDelay,
         // then check if we have the settings for making request,
-        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
-        locationRequest = new LocationRequest()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(updateDelay)
-                .setInterval(updateDelay);
-        locationSettingsRequest = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-                .setAlwaysShow(true);
+        initLocationInformation();
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(
                         googleApiClient,
@@ -381,7 +362,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    /**
+     * Triggered whenever the user clicks the button turning starting/stopping StoreLocation service
+     * @param view
+     */
     public void toggleFindLocation(View view){
 
         if(active){
@@ -408,6 +392,61 @@ public class MainActivity extends AppCompatActivity implements
         intent.setClass(MainActivity.this, MapLocationActivity.class);
         intent.putExtra("userLocation", mLastLocation);
         startActivity(intent);
+    }
+
+    /**
+     * Helper function that sets the value of member variables of MainActivity
+     *  used for generating the LocationRequest to the user's settings
+     *      <ul>
+     *          <li>
+     *              LocationRequest locationRequest
+     *           </li>
+     *           <li>
+     *               PendingIntent locationIntent
+     *           </li>
+     *           <li>
+     *               LocationSettingsRequest.Builder locationSettingsRequest
+     *           </li>
+     *           <li>
+     *               long updateDelay
+     *           </li>
+     *      </ul>
+     */
+    private void initLocationInformation(){
+        //set how many milliseconds to wait until the next location update
+        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
+
+        locationRequest = new LocationRequest()
+                .setFastestInterval(updateDelay)
+                .setInterval(updateDelay);
+
+        //set priority of locationRequest based on user settings
+
+        String locationRequestSharedPreferenceKey = sharedPreferences.getString(
+                "locationPrecision",
+                getString(R.string.mainActivitySettings_locationPrecision_HIGH_ACCURACY)
+        );
+
+        if(locationRequestSharedPreferenceKey.equals(getString(R.string.mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY))){
+            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        }
+        //if all the above fail, set the priority to HIGH_ACCURACY
+        else {
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+
+        //have pendingIntent send broadcast that will be picked up
+        //  by any registered BroadcastReceivers in the current package
+        //  that have the action StoreLocation.LOCATION_UPDATE set
+        Intent tempIntent = new Intent()
+                .setPackage(getApplicationContext().getPackageName())
+                .setAction(StoreLocation.LOCATION_UPDATE);
+        locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        locationSettingsRequest = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .setAlwaysShow(true);
     }
 
 }

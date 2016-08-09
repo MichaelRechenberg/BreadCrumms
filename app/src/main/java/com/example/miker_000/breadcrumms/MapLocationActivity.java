@@ -200,7 +200,7 @@ public class MapLocationActivity extends AppCompatActivity
 
                                     Toast.makeText(
                                             getApplication(),
-                                            "Snapshot Saved!",
+                                            getString(R.string.heatmap_snapshotSuccessfulToastMessage),
                                             Toast.LENGTH_SHORT
                                     ).show();
                                     SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -219,7 +219,11 @@ public class MapLocationActivity extends AppCompatActivity
 
                                 }
                                 catch(FileNotFoundException e){
-                                    Log.e("MapLocation", "Could not find snapshot image file");
+                                    Toast.makeText(
+                                            getApplication(),
+                                            getString(R.string.heatmap_snapshotUnsuccessfulToastMessage),
+                                            Toast.LENGTH_SHORT
+                                    ).show();
                                 }
                             }
                         }

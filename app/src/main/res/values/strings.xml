@@ -156,29 +156,74 @@
     <string name="privacy_policy">
         <![CDATA[
         <h1>Bread Crumms Privacy Policy</h1>
-        <h2>What This App Collects</h2>
-        <p>Bread Crumms periodically collects the latitude and longitude of your phone\'s location along
-        with the time that the location was recorded and stores this information in a
-        database within your phone. This database is only accessible via the Bread Crumms app and cannot
-        be accessed remotely. Bread Crumms only collects this information when the tracking service
-        has been turned on by the user. Bread Crumms <b>DOES NOT</b> store or use any personally identifiable information
-        about the user or any information that could relate the location information stored
-        to any particular person.</p>
-        <p>If you uninstall Bread Crumms the database that stores your location will be deleted.</p>
-        <p>This app uses the Google Maps API for Android in order to show satellite imagery
-        of locations.  When initially opening up the Heat Map Activity your current location is used
-        to set the camera of the Google Map.  Google Maps may use cookies.  Links to Google\'s Privacy Policies and Terms of
+
+        <p>The Bread Crumms Android Application will hereafter be referred to as \"THE APPLICATION\".</p>
+
+        <h2>About the Developer</h2>
+        <p>THE APPLICATION was a pet project of mine (Michael Rechenberg) developed in the Summer of 2016.</p>
+        <p>If you want to contact me please email mrechenberg09@gmail.com</p>
+
+        <h2>Data The App Collects And Stores</h2>
+
+        <p>The latitude, longitude, and time of which the latitude and longitude was stored will
+        hereafter be referred to as \"LOCATION DATA\".</p>
+        <p>The Android device that THE APPLICATION runs on will hereafter be referred to as \"DEVICE\".</p>
+
+        <h3>Why THE APPLICATION Collects And Stores LOCATION DATA</h3>
+        <p>THE APPLICATION is centered around location: THE APPLICATION uses LOCATION DATA
+        in order to generate a heat map based off of where you were most often in the past.
+        In order to generate a heat map based off of where you were most often in the past, THE APPLICATION needs to
+        store your location periodically. </p>
+
+        <h3>How and When THE APPLICATION Collects And Stores LOCATION DATA</h3>
+        <p>When you turn on the Tracking Service
+        (done by clicking \"Turn On Tracking\" within THE APPLICATION), THE APPLICATION will periodically request the
+        location of your DEVICE and store the latitude and longitude of that location as LOCATION DATA.
+        <b>Note that the Tracking Service occurs in the background and continues even if you continue to have THE APPLICATION open,
+        switch to other applications on your DEVICE, or lock your DEVICE\'s screen.</b>
+        You can turn off the Tracking Service at any time via THE APPLICATION.
+        You can select how often THE APPLICATION
+        will request for your DEVICE\'S location and store new LOCATION DATA within THE APPLICATION\'s settings.
+        Turning off the Tracking Service will remove the periodic request for your DEVICE\'s location and
+        stop the storage of any new LOCATION DATA until the Tracking Service is turned on again.
+        </p>
+        <p>THE APPLICATION will not collect or store any LOCATION DATA if the Location setting of your
+        DEVICE is turned off.  If THE APPLICATION requires your Location setting of your DEVICE to be on,
+        you will be explicitly requested to turn it on.</p>
+        <p>When initially opening up the Heat Map Activity THE APPLICATION may use your recent location
+        to set the camera of the Google Map.</p>
+
+        <h3>Where LOCATION DATA Is Stored</h3>
+        <p>Your LOCATION DATA is stored on your DEVICE only.</p>
+
+        <h3>How Long LOCATION DATA Is Stored</h3>
+        <p>Your LOCATION DATA is stored on your DEVICE as long as you have THE APPLICATION installed on your DEVICE.</p>
+
+
+        <h3>Deleting Your Stored LOCATION DATA</h3>
+        <p>You can delete all your stored LOCATION DATA at any time via THE APPLICATION\'s settings.
+        Also, if you uninstall THE APPLICATION
+        from your DEVICE then your stored LOCATION DATA will also be deleted.</p>
+
+        <h3>Disclosure Of LOCATION DATA to Third Parties</h3>
+        <p>Your stored LOCATION DATA is not shared with any third parties.</p>
+
+
+        <h2>Third Party Information</h2>
+        <p>THE APPLICATION uses the Google Maps API for Android in order to show satellite imagery
+        of locations.  Google Maps may use cookies in its implementation.  Links to Google\'s Privacy Policies and Terms of
         Service are http://www.google.com/policies/privacy
-        and https://www.google.com/intl/ALL/help/terms_maps.html.  Usage of Bread Crumms binds
+        and https://www.google.com/intl/ALL/help/terms_maps.html.  Usage of THE APPLICATION binds
         you to Google\'s Terms of Service.</p>
-        <h2>Who Has Access To Your Information</h2>
-        <p>Only the Bread Crumms app has access to any aforementioned collected information stored within
-        the local database.  This database and its contents are stored on your phone only.</p>
-        <h2>Your Consent<h2>
-        <p>By using this app you consent to this privacy policy.</p>
-        <h2>Questions About Privacy Policy</h2>
-        <p>If you have any questions regarding what data Bread Crumms uses feel free to contact me at:
-        michaelrechenberg@oawl.net</p>
+
+
+        <h2>Changes to the Privacy Policy</h2>
+        <p>This Privacy Policy is subject to change without notice.</p>
+
+        <h2>Your Consent And Privacy Policy Efficacy</h2>
+        <p>By using THE APPLICATION you consent to this privacy policy and  the
+        privacy policy is effective upon your consent.</p>
+
         ]]>
     </string>
     <string name="EULA_PositiveButton">I Agree</string>
@@ -196,23 +241,30 @@
     <string name="aboutSection_text">
         <![CDATA[
         <h1>About Section</h1>
-        <h2>What This App Does</h2>
+        <h2>What Bread Crumms Does</h2>
         <p>Bread Crumms is an app that allows you to track and store your location and then
         visualize where you were most of the time using a heat map.  You can choose to view
-        your location data from the past month, week, day, or whatever range you prefer.  Then,
-        you can select the region you want to analyze using a Google Map and generate your heat map.
-        Scroll to whatever location you want or jump to a specific latitude and longitude.
-        You can adjust the opacity of the heat map and if you what type of Google Map you want to use
+        your location data from the past month, week, day, or whatever range of dates you prefer.
+        Then you can select the area you want to analyze using a Google Map, scrolling to whatever location you
+        want or jumping to a specific latitude and longitude, and generate your heat map.
+        You can adjust the opacity of the heat map and what type of Google Map you want to use
         (Satellite, Terrain, or Normal).  Once you\'ve generated your perfect heat map, you can click the save icon
         and save a snapshot of your heat map for posterity.</p>
-        <h2>Who Has Access to My Location Information?</h2>
-        <p>You can look at the Privacy Policy for the details, but the short version is that
-        your location data is stored on your phone only.</p>
+
+        <h2>What Does Bread Crumms Do With My Device\'s Current And Past Location Data?</h2>
+        <p>Look at the Privacy Policy for the full details, but the short version is that
+        your location data is stored on your phone only and not shared with third parties.</p>
+
         <p>Your location data is erased when you uninstall the app or select \"Clear Data\" for the app
         within Android\'s app settings.</p>
+
+        <h2>About the Developer</h2>
+        <p>This app was a pet project of mine (Michael Rechenberg) developed in the Summer of 2016.</p>
+        <p>If you want to contact me please email mrechenberg09@gmail.com</p>
+
         <h2>Acknowledgements</h2>
-        <p>The heat map would not be possible without the Google Maps API for Android and the
-        Google Maps API Utility Library</p>
+        <p>Thanks to Google for providing the Google Maps API for Android and the
+        Google Maps API Utility Library, both of which power Bread Crumms.</p>
         <p>A big thanks to Google\'s Material Design Icons https://design.google.com/icons/ for providing
         great looking icons for the toolbar.</p>
         ]]>

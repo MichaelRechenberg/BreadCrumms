@@ -191,7 +191,7 @@
         <p>By clicking \"I Agree\" you accept this End User License Agreement</p>
         ]]>
     </string>
-    <string name="activity_main_locationTitle">Last Registered Location:</string>
+    <string name="activity_main_locationTitle">Last Received Location</string>
 
     <string name="aboutSection_text">
         <![CDATA[

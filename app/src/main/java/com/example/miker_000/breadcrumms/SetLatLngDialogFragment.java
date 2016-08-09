@@ -59,8 +59,17 @@ public class SetLatLngDialogFragment extends DialogFragment {
                         EditText latText = (EditText) dialog.findViewById(R.id.latitude);
                         EditText lngText = (EditText) dialog.findViewById(R.id.longitude);
 
-                        lat = Double.parseDouble(latText.getText().toString());
-                        lng = Double.parseDouble(lngText.getText().toString());
+                        try{
+                            lat = Double.parseDouble(latText.getText().toString());
+                            lng = Double.parseDouble(lngText.getText().toString());
+                        }
+                        //The number could not be parsed, set lat/lng to values outside
+                        //  the acceptable range so they are rejected by MapLocationActivity
+                        catch(NumberFormatException e){
+                            lat = -1337;
+                            lng = -1337;
+                        }
+
 
                         latLngDialogListener.moveCameraFromDialog(lat, lng);
                     }

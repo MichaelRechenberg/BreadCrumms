@@ -266,7 +266,7 @@ public class MapLocationActivity extends AppCompatActivity
 
         //defaults to google headquarters
         double latitude = 37.420841;
-        double longitude = -127.084063;
+        double longitude = -122.084063;
 
         if(userLocation != null){
             latitude = userLocation.getLatitude();

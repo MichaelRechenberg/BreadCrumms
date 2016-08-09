@@ -60,7 +60,8 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Unknown"
                     android:id="@+id/locLatData"
-                    android:layout_column="1" />
+                    android:layout_column="1"
+                    android:paddingLeft="@dimen/abc_dropdownitem_text_padding_left" />
             </TableRow>
 
             <TableRow
@@ -79,7 +80,8 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Unknown"
                     android:id="@+id/locLngData"
-                    android:layout_column="1" />
+                    android:layout_column="1"
+                    android:paddingLeft="@dimen/abc_dropdownitem_text_padding_left" />
             </TableRow>
         </TableLayout>
 

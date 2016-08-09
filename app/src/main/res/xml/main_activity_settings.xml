@@ -25,4 +25,18 @@
         android:dialogTitle="Privacy Policy">
     </com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference>
 
+    <com.example.miker_000.breadcrumms.AboutSectionDialogPreference
+        android:title="About"
+        android:dialogTitle="About">
+
+    </com.example.miker_000.breadcrumms.AboutSectionDialogPreference>
+
+    <com.example.miker_000.breadcrumms.DeleteLocationDataDialogPreference
+        android:title="Delete All Location Data"
+        android:dialogTitle="Warning!"
+        android:dialogMessage="Clicking OK will delete ALL of the location points you have
+        tracked via the app.  This cannot be undone.">
+
+    </com.example.miker_000.breadcrumms.DeleteLocationDataDialogPreference>
+
 </PreferenceScreen>

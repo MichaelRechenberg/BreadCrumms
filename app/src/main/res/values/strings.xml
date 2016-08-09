@@ -191,5 +191,30 @@
         <p>By clicking \"I Agree\" you accept this End User License Agreement</p>
         ]]>
     </string>
-    <string name="activity_main_locationTitle">Last Registered Location:</string>
+    <string name="activity_main_locationTitle">Last Received Location</string>
+
+    <string name="aboutSection_text">
+        <![CDATA[
+        <h1>About Section</h1>
+        <h2>What This App Does</h2>
+        <p>Bread Crumms is an app that allows you to track and store your location and then
+        visualize where you were most of the time using a heat map.  You can choose to view
+        your location data from the past month, week, day, or whatever range you prefer.  Then,
+        you can select the region you want to analyze using a Google Map and generate your heat map.
+        Scroll to whatever location you want or jump to a specific latitude and longitude.
+        You can adjust the opacity of the heat map and if you what type of Google Map you want to use
+        (Satellite, Terrain, or Normal).  Once you\'ve generated your perfect heat map, you can click the save icon
+        and save a snapshot of your heat map for posterity.</p>
+        <h2>Who Has Access to My Location Information?</h2>
+        <p>You can look at the Privacy Policy for the details, but the short version is that
+        your location data is stored on your phone only.</p>
+        <p>Your location data is erased when you uninstall the app or select \"Clear Data\" for the app
+        within Android\'s app settings.</p>
+        <h2>Acknowledgements</h2>
+        <p>The heat map would not be possible without the Google Maps API for Android and the
+        Google Maps API Utility Library</p>
+        <p>A big thanks to Google\'s Material Design Icons https://design.google.com/icons/ for providing
+        great looking icons for the toolbar.</p>
+        ]]>
+    </string>
 </resources>

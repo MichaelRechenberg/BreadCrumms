@@ -78,7 +78,7 @@ public class StoreLocation extends Service {
         Notification notification = new Notification.Builder(getApplicationContext())
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.mipmap.bc_black_and_white)
-                .setContentText("Location Tracking Is On")
+                .setContentText(getString(R.string.trackingNotificationMessage))
                 .build();
 
         startForeground(LOCATION_TRACKING_ONGOING_ID, notification);

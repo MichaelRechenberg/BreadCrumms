@@ -152,6 +152,7 @@
     <string name="longitudeTitle">Longitude:</string>
     <string name="tracking_on">Turn On Tracking</string>
     <string name="tracking_off">Turn Off Tracking</string>
+    <string name="trackingNotificationMessage">Location Tracking Is On</string>
     <string name="heatmapBeingGeneratedToastText">Generating Heatmap: This may take a few seconds</string>
     <string name="setLatLngDialogFragmentMessage">Set Map\'s Location</string>
 

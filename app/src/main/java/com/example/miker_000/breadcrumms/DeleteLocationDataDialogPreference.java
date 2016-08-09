@@ -28,9 +28,5 @@ public class DeleteLocationDataDialogPreference extends DialogPreference {
                     null);
         }
 
-        SQLiteDatabase dbTest = new LocationDatabaseDbHelper(getContext().getApplicationContext()).getReadableDatabase();
-        Cursor result = dbTest.rawQuery("SELECT * FROM " + LocationDatabaseContract.LocationEntry.TABLE_NAME, null);
-        Log.d("Tmp", String.valueOf(result.getCount()));
-
     }
 }

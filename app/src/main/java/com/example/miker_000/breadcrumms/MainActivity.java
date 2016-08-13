@@ -287,7 +287,6 @@ public class MainActivity extends AppCompatActivity implements
                                     Toast.LENGTH_SHORT
                             ).show();
 
-                            Log.d("Derp", "Location request added");
 
                         }
                         catch (SecurityException e){
@@ -346,12 +345,7 @@ public class MainActivity extends AppCompatActivity implements
         removeLocationStatus.setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
-                if(status.isSuccess()){
-                    Log.d("Derp", "Successfully removed location request");
-                }
-                else{
-                    Log.d("Derp", "COULD NOT REMOVE LOCATION REQUEST");
-                }
+
             }
         });
 

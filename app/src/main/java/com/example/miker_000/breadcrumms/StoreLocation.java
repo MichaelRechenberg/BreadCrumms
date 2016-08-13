@@ -12,7 +12,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.google.android.gms.location.LocationResult;
 
@@ -32,11 +31,7 @@ public class StoreLocation extends Service {
                 LocationResult result = LocationResult.extractResult(intent);
                 Location loc = result.getLastLocation();
                 if(loc!=null){
-                    Log.d("Derp", "Lat: " + loc.getLatitude());
-                    Log.d("Derp", "Long: " + loc.getLongitude());
-
                     //Insert into SQLite DB
-                    Log.d("SQL", "Beginning insertion");
                     ContentValues values = new ContentValues();
                     values.put(
                             LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE,
@@ -55,15 +50,11 @@ public class StoreLocation extends Service {
                                     null,
                                     values);
                         }
-                        else{
-                            Log.d("SQL", "well shit");
-                        }
 
                     } finally{
                         db.close();
                     }
 
-                    Log.d("SQL", "Insertion Successful of row " + row_id);
 
                 }
 

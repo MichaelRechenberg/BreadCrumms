@@ -1,6 +1,7 @@
 package com.example.miker_000.breadcrumms;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -74,11 +75,22 @@ public class StoreLocation extends Service {
         LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
         db = dbHelper.getWritableDatabase();
 
+        Intent tmpIntent = new Intent()
+                .setClass(getApplicationContext(), MainActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent returnToMainActivityPendingIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                MainActivity.REQUEST_CODE_FROM_NOTIFICATION,
+                tmpIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
         //Start the service in the foreground and add notification
         Notification notification = new Notification.Builder(getApplicationContext())
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.mipmap.bc_black_and_white)
                 .setContentText(getString(R.string.trackingNotificationMessage))
+                .setContentIntent(returnToMainActivityPendingIntent)
                 .build();
 
         startForeground(LOCATION_TRACKING_ONGOING_ID, notification);

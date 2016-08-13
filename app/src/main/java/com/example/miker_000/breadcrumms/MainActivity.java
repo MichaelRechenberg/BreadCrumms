@@ -67,6 +67,8 @@ import java.util.TimeZone;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
 
+    public final static int REQUEST_CODE_FROM_NOTIFICATION = 4;
+
     //Handle on shared preferences
     SharedPreferences sharedPreferences;
 

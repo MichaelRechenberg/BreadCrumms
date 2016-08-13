@@ -101,7 +101,7 @@ public class StoreLocation extends Service {
     @Override
     public void onDestroy() {
         unregisterReceiver(locationReceiver);
-        db = null;
+        db.close();
         stopForeground(true);
     }
 }

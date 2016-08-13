@@ -17,9 +17,6 @@
         <item>2 minutes</item>
         <item>1 minute</item>
         <item>30 seconds</item>
-        <item>10 seconds</item>
-        <item>5 seconds</item>
-        <item>1 second</item>
     </string-array>
 
     <string-array name="mainActivitySettings_values">
@@ -27,9 +24,6 @@
         <item>120000</item>
         <item>60000</item>
         <item>30000</item>
-        <item>10000</item>
-        <item>5000</item>
-        <item>1000</item>
     </string-array>
 
     <string name="heatmapActivitySettings_interval_allDays">All Days</string>

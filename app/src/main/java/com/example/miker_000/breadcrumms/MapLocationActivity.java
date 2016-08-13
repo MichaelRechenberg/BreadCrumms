@@ -64,9 +64,6 @@ public class MapLocationActivity extends AppCompatActivity
     private Gradient theMapGradient;
     private boolean isHeatMapOn;
 
-    private SQLiteDatabase db;
-    private LocationDatabaseDbHelper dbHelper;
-
     private SharedPreferences sharedPreferences;
     private Switch heatmapSwitch;
 
@@ -82,9 +79,6 @@ public class MapLocationActivity extends AppCompatActivity
         //set up shared preferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //init DB variable
-        dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
-        db = dbHelper.getReadableDatabase();
 
         //set up the tool bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
@@ -391,7 +385,7 @@ public class MapLocationActivity extends AppCompatActivity
 
         //disable the switch until the heatmap is generated
         heatmapSwitch.setEnabled(false);
-        new GatherPointsAndGenerateHeatmap().execute(db, query);
+        new GatherPointsAndGenerateHeatmap().execute(query);
 
     }
 
@@ -401,37 +395,46 @@ public class MapLocationActivity extends AppCompatActivity
      *
      * The heatmapTileOverlay is updated within postExecute
      *
-     * The first argument is the SQLiteDatabase to query
-     * The second argument is the query you wish to execute
+     * The first argument is the query you wish to execute
      */
     private class GatherPointsAndGenerateHeatmap extends AsyncTask<Object, Integer, HeatmapTileProvider> {
         @Override
         protected HeatmapTileProvider doInBackground(Object... objects) {
-            SQLiteDatabase db = (SQLiteDatabase) objects[0];
-            String query = (String) objects[1];
-            Cursor result = db.rawQuery(query, null);
-            int row_count = result.getCount();
+            String query = (String) objects[0];
+            LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor result = null;
             HeatmapTileProvider heatmapProvider = null;
-            if(row_count > 0) {
-                int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
-                int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
-                //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
-                ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
-                for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
-                    LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
-                    pts.add(tempPt);
-                }
-                //get opacity setting from SharedPreferences
-                final double opacity = ((double) sharedPreferences.getInt("heatmap_opacity", 70)) / 100;
+            try{
+                result = db.rawQuery(query, null);
+                int row_count = result.getCount();
+                if(row_count > 0) {
+                    int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+                    int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
+                    //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
+                    ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
+                    for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
+                        LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
+                        pts.add(tempPt);
+                    }
+                    //get opacity setting from SharedPreferences
+                    final double opacity = ((double) sharedPreferences.getInt("heatmap_opacity", 70)) / 100;
 
-                heatmapProvider = new HeatmapTileProvider.Builder()
-                        .data(pts)
-                        .opacity(opacity)
-                        .gradient(theMapGradient)
-                        .build();
+                    heatmapProvider = new HeatmapTileProvider.Builder()
+                            .data(pts)
+                            .opacity(opacity)
+                            .gradient(theMapGradient)
+                            .build();
+                }
+            } finally{
+                //release the cursor and database
+                if(result !=null){
+                    result.close();
+                }
+                db.close();
             }
-            //release the cursor
-            result.close();
+
+
 
             return heatmapProvider;
         }

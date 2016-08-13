@@ -25,8 +25,6 @@ public class StoreLocation extends Service {
     public static final int LOCATION_UPDATE_CODE = 1337;
     private static final int LOCATION_TRACKING_ONGOING_ID = 1;
 
-    private SQLiteDatabase db = null;
-
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -47,9 +45,24 @@ public class StoreLocation extends Service {
                             LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE,
                             loc.getLongitude()
                     );
-                    long row_id = db.insert(LocationDatabaseContract.LocationEntry.TABLE_NAME,
-                            null,
-                            values);
+                    LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    long row_id = -1;
+                    try {
+                        //only write to the DB if not blocked by the current thread (in MapLocationActivity)
+                        if(!db.isDbLockedByCurrentThread()){
+                            row_id = db.insert(LocationDatabaseContract.LocationEntry.TABLE_NAME,
+                                    null,
+                                    values);
+                        }
+                        else{
+                            Log.d("SQL", "well shit");
+                        }
+
+                    } finally{
+                        db.close();
+                    }
+
                     Log.d("SQL", "Insertion Successful of row " + row_id);
 
                 }
@@ -72,8 +85,7 @@ public class StoreLocation extends Service {
         //throw new UnsupportedOperationException("Not yet implemented");
         IntentFilter filter = new IntentFilter(StoreLocation.LOCATION_UPDATE);
         registerReceiver(locationReceiver, filter);
-        LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
-        db = dbHelper.getWritableDatabase();
+
 
         Intent tmpIntent = new Intent()
                 .setClass(getApplicationContext(), MainActivity.class)
@@ -101,7 +113,6 @@ public class StoreLocation extends Service {
     @Override
     public void onDestroy() {
         unregisterReceiver(locationReceiver);
-        db.close();
         stopForeground(true);
     }
 }

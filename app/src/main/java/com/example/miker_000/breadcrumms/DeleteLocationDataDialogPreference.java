@@ -12,7 +12,7 @@ import android.util.Log;
  * Dialog preference allowing user to delete all location data
  */
 public class DeleteLocationDataDialogPreference extends DialogPreference {
-    DeleteLocationDataDialogPreference(Context context, AttributeSet attrs){
+    public DeleteLocationDataDialogPreference(Context context, AttributeSet attrs){
         super(context, attrs);
     }
 

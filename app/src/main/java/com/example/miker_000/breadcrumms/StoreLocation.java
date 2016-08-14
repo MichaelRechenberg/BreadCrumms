@@ -91,7 +91,7 @@ public class StoreLocation extends Service {
         //Start the service in the foreground and add notification
         Notification notification = new Notification.Builder(getApplicationContext())
                 .setContentTitle(getString(R.string.app_name))
-                .setSmallIcon(R.mipmap.bc_black_and_white)
+                .setSmallIcon(R.drawable.bc_notification_icon)
                 .setContentText(getString(R.string.trackingNotificationMessage))
                 .setContentIntent(returnToMainActivityPendingIntent)
                 .build();

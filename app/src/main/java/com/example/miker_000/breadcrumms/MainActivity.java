@@ -1,6 +1,7 @@
 package com.example.miker_000.breadcrumms;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -27,6 +28,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
 
     public final static int REQUEST_CODE_FROM_NOTIFICATION = 4;
+    private final static int LOCATION_PERMISSION_CHECK = 0;
 
     //Handle on shared preferences
     SharedPreferences sharedPreferences;
@@ -272,22 +276,32 @@ public class MainActivity extends AppCompatActivity implements
                     //All location settings were satisfied
                     case LocationSettingsStatusCodes.SUCCESS:
                         try{
-                            //Actually add our request for Location Update
-                            LocationServices.FusedLocationApi.requestLocationUpdates(
-                                    googleApiClient,
-                                    locationRequest,
-                                    locationIntent
-                            );
-                            Intent tmp = new Intent()
-                                    .setClass(MainActivity.this, StoreLocation.class);
-                            startService(tmp);
-                            Toast.makeText(
+                            //ensure we have permission for dangerous permission (API >=23)
+                            int locationCheck;
+                            String locationPrecisionPermission;
+                            if(locationRequest.getPriority()==LocationRequest.PRIORITY_HIGH_ACCURACY){
+                                locationPrecisionPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+                            }
+                            else{
+                                locationPrecisionPermission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                            }
+
+                            locationCheck = ContextCompat.checkSelfPermission(
                                     getApplicationContext(),
-                                    "Each location update will occur every " + updateDelay/1000 + " seconds",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-
+                                    locationPrecisionPermission
+                            );
+                            //we need to request for permission
+                            if(locationCheck == PackageManager.PERMISSION_DENIED){
+                                ActivityCompat.requestPermissions(
+                                        MainActivity.this,
+                                        new String[]{locationPrecisionPermission},
+                                        LOCATION_PERMISSION_CHECK
+                                );
+                            }
+                            //we already have permission, actually add the location request
+                            else{
+                                actuallyAddLocationRequest();
+                            }
                         }
                         catch (SecurityException e){
                             //pass silently
@@ -314,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_FOR_LOCATION){
             switch(resultCode){
+                //The user allowed the app to turn lon location, attempt to add location updates again
                 case RESULT_OK:
                     addMyLocationUpdates();
                     break;
@@ -450,4 +465,52 @@ public class MainActivity extends AppCompatActivity implements
                 .setAlwaysShow(true);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case LOCATION_PERMISSION_CHECK:{
+                //The permission was granted, actually add the location request
+                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    actuallyAddLocationRequest();
+                }
+                //the permission was denied, let the user know we need the permission to operate
+                //  via toast message and turn off the button
+                else{
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Location must be enabled for Bread Crumms to work",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    ToggleButton button = (ToggleButton)
+                            findViewById(R.id.myButton);
+                    button.setChecked(false);
+                    active = false;
+                }
+                return;
+            }
+        }
+    }
+
+    //Helper method that actually adds the LocationRequest to the FusedLocationAPI
+    private void actuallyAddLocationRequest(){
+        try{
+            //Actually add our request for Location Update
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    googleApiClient,
+                    locationRequest,
+                    locationIntent
+            );
+            Intent tmp = new Intent()
+                    .setClass(MainActivity.this, StoreLocation.class);
+            startService(tmp);
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Each location update will occur every " + updateDelay/1000 + " seconds",
+                    Toast.LENGTH_SHORT
+            ).show();
+    }
+        catch (SecurityException e){
+            //pass silently
+        }
+    }
 }

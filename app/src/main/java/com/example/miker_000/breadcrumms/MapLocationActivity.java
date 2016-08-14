@@ -1,8 +1,10 @@
 package com.example.miker_000.breadcrumms;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -14,7 +16,10 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -24,6 +29,7 @@ import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -56,6 +62,8 @@ import java.util.Date;
  */
 public class MapLocationActivity extends AppCompatActivity
     implements OnMapReadyCallback, SetLatLngDialogFragment.LatLngDialogListener{
+
+    private static final int WRITE_EXTERNAL_PERMISSION_CHECK = 0;
 
 
     private GoogleMap theMap;
@@ -171,77 +179,25 @@ public class MapLocationActivity extends AppCompatActivity
                         .setClass(getApplicationContext(), HeatmapSettingsActivity.class);
                 startActivity(intent);
                 return true;
+            //Save a snapshot of the heat map
             case R.id.heatmap_snapshot:
-                //Save the picture to external storage
+                //check permissions and ask for them if necessary
 
-                //External storage is not available
-                if(!isExternalStorageWritable()){
-                    return false;
+                //we don't have permission ask, so ask for it
+                if(ContextCompat.checkSelfPermission(MapLocationActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+
+                    ActivityCompat.requestPermissions(
+                            MapLocationActivity.this,
+                            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            WRITE_EXTERNAL_PERMISSION_CHECK
+                    );
+                    return true;
+                }
+                else{
+                    return saveSnapshot();
                 }
 
-
-                final File path = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES),
-                    getString(R.string.heatmap_snapshotsDirName)
-                );
-
-
-                theMap.snapshot(
-                        new GoogleMap.SnapshotReadyCallback() {
-                            @Override
-                            public void onSnapshotReady(Bitmap bitmap) {
-                                try{
-                                    path.mkdirs();
-                                    int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
-                                    File snapshot = new File(path, "map_snapshot00"+photoCount+".jpeg");
-
-                                    FileOutputStream outputStream = new FileOutputStream(snapshot);
-                                    bitmap.compress(
-                                            Bitmap.CompressFormat.JPEG,
-                                            100,
-                                            outputStream
-                                    );
-
-                                    //Have MediaScanner scan file so the user can immediately access it
-                                    MediaScannerConnection.scanFile(
-                                            getApplicationContext(),
-                                            new String[] { snapshot.getAbsolutePath() },
-                                            null,
-                                            null
-                                    );
-
-                                    Toast.makeText(
-                                            getApplication(),
-                                            getString(R.string.heatmap_snapshotSuccessfulToastMessage),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    photoCount++;
-                                    editor.putInt("snapshotCounter", photoCount);
-                                    editor.commit();
-
-
-                                    try{
-                                        outputStream.flush();
-                                        outputStream.close();
-                                    }
-                                    catch(IOException e){
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                                catch(FileNotFoundException e){
-                                    Toast.makeText(
-                                            getApplication(),
-                                            getString(R.string.heatmap_snapshotUnsuccessfulToastMessage),
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                }
-                            }
-                        }
-                );
-
-                return true;
 
             case R.id.heatmap_setLocation:
 
@@ -475,5 +431,101 @@ public class MapLocationActivity extends AppCompatActivity
         else{
             theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case WRITE_EXTERNAL_PERMISSION_CHECK:{
+                //The permission was granted, save picture
+                if(grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    saveSnapshot();
+                }
+                //the permission was denied, let the user we didn't have permission to save
+                else{
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Permission To Save Picture Was Denied",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+                return;
+            }
+        }
+    }
+
+    //Helper method that saves a snapshot of the Google Map to External Storage
+    //Assumes that permission has been granted to write to external storage.
+    private boolean saveSnapshot(){
+        //Save the picture to external storage
+
+        //External storage is not available
+        if(!isExternalStorageWritable()){
+            return false;
+        }
+
+
+        final File path = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES),
+                getString(R.string.heatmap_snapshotsDirName)
+        );
+
+
+        theMap.snapshot(
+                new GoogleMap.SnapshotReadyCallback() {
+                    @Override
+                    public void onSnapshotReady(Bitmap bitmap) {
+                        try{
+                            path.mkdirs();
+                            int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
+                            File snapshot = new File(path, "map_snapshot00"+photoCount+".jpeg");
+
+                            FileOutputStream outputStream = new FileOutputStream(snapshot);
+                            bitmap.compress(
+                                    Bitmap.CompressFormat.JPEG,
+                                    100,
+                                    outputStream
+                            );
+
+                            //Have MediaScanner scan file so the user can immediately access it
+                            MediaScannerConnection.scanFile(
+                                    getApplicationContext(),
+                                    new String[] { snapshot.getAbsolutePath() },
+                                    null,
+                                    null
+                            );
+
+                            Toast.makeText(
+                                    getApplication(),
+                                    getString(R.string.heatmap_snapshotSuccessfulToastMessage),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            photoCount++;
+                            editor.putInt("snapshotCounter", photoCount);
+                            editor.commit();
+
+
+                            try{
+                                outputStream.flush();
+                                outputStream.close();
+                            }
+                            catch(IOException e){
+                                e.printStackTrace();
+                            }
+
+                        }
+                        catch(FileNotFoundException e){
+                            Toast.makeText(
+                                    getApplication(),
+                                    getString(R.string.heatmap_snapshotUnsuccessfulToastMessage),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+                }
+        );
+
+        return true;
     }
 }

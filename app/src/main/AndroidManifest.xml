@@ -3,6 +3,7 @@
     package="com.example.miker_000.breadcrumms">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
@@ -18,7 +19,8 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask">
             a
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,13 +40,19 @@
         <activity
             android:name=".HeatMapSettingsActivity"
             android:label="@string/title_activity_heat_map_settings"
-            android:parentActivityName=".MapLocationActivity">
+            android:parentActivityName=".MapLocationActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.miker_000.breadcrumms.MapLocationActivity" />
         </activity>
-        <activity android:name=".MainActivitySettingsActivity" />
-        <activity android:name=".HeatmapSettingsActivity"></activity>
+        <activity android:name=".MainActivitySettingsActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"/>
+        <activity android:name=".HeatmapSettingsActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"></activity>
     </application>
 
 </manifest>

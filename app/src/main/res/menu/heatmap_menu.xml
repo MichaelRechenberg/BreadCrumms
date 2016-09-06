@@ -10,7 +10,7 @@
     </item>
 
     <item android:id="@+id/heatmap_snapshot"
-        android:icon="@drawable/ic_get_app_white_24dp"
+        android:icon="@drawable/ic_save_white_24dp"
         android:title="Snapshot"
         app:showAsAction="ifRoom">
     </item>

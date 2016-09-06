@@ -27,7 +27,8 @@
         android:id="@+id/latitude"
         android:layout_centerInParent="true"
         android:layout_column="1"
-        android:layout_row="0" />
+        android:layout_row="0"
+        android:selectAllOnFocus="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,6 +49,7 @@
         android:id="@+id/longitude"
         android:layout_alignParentStart="true"
         android:layout_column="1"
-        android:layout_row="1" />
+        android:layout_row="1"
+        android:selectAllOnFocus="true" />
 
 </GridLayout>

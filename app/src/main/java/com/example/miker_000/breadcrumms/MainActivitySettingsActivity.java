@@ -5,6 +5,9 @@ import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Settings Activity for MainActivity
+ */
 public class MainActivitySettingsActivity extends PreferenceActivity {
 
     @Override

@@ -1,10 +1,14 @@
 package com.example.miker_000.breadcrumms;
 
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.content.IntentFilter;
@@ -12,6 +16,7 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -23,9 +28,13 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,9 +63,15 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.TimeZone;
 
-
+/**
+ * Launcher activity that provides way to start/stop location tracking
+ *  and launch MapLocationActivity to view heatmap
+ */
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks{
+
+    public final static int REQUEST_CODE_FROM_NOTIFICATION = 4;
+    private final static int LOCATION_PERMISSION_CHECK = 0;
 
     //Handle on shared preferences
     SharedPreferences sharedPreferences;
@@ -74,11 +89,12 @@ public class MainActivity extends AppCompatActivity implements
     private PendingIntent locationIntent;
     private LocationSettingsRequest.Builder locationSettingsRequest;
     private long updateDelay;
+
+    private boolean hasAcceptedEULA;
     //Broadcast Receiver to update Lat/Lng on Activity everytime we get a new location update
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Derp", "Updating UI");
             if(LocationResult.hasResult(intent)){
                 LocationResult result = LocationResult.extractResult(intent);
                 Location loc = result.getLastLocation();
@@ -101,16 +117,59 @@ public class MainActivity extends AppCompatActivity implements
 
         //Get handle on shared preferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+        //Show EULA the first time the user installs app and on version updates
+        //Code adapted from http://www.donnfelker.com/android-a-simple-eula-for-your-android-apps/
+        int versionNumber=1;
+        try{
+            versionNumber = getPackageManager()
+                    .getPackageInfo(getPackageName(), PackageManager.GET_ACTIVITIES)
+                    .versionCode;
+        }
+        catch(PackageManager.NameNotFoundException e){
+            e.printStackTrace();
+        }
+
+        final String EULA_KEY = "EULA_" + versionNumber;
+        hasAcceptedEULA = sharedPreferences.getBoolean(EULA_KEY, false);
+        if(!hasAcceptedEULA){
+            final Activity thisActivity = this;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("EULA Notice")
+                    .setMessage(Html.fromHtml(getString(R.string.EULA_text)))
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.EULA_PositiveButton, new Dialog.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // Mark this version as read.
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(EULA_KEY, true);
+                            editor.commit();
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new Dialog.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Close the activity as they have declined the EULA
+                            thisActivity.finish();
+                        }
+
+                    });
+            builder.create().show();
+        }
+
+
         active = sharedPreferences.getBoolean("active", false);
         //The location Service is active, so have the button be "On"
         if(active){
-            TextView msg = (TextView) findViewById(R.id.message);
-            msg.setText(R.string.not_looking_for_location);
             ToggleButton button = (ToggleButton) findViewById(R.id.myButton);
             button.setChecked(true);
         }
-        //set how many milliseconds to wait until the next location update
-        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
+
 
         //Init UI handles
         latitudeData = (TextView)findViewById(R.id.locLatData);
@@ -119,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
-        toolbar.setTitle("BreadCrumms");
+        toolbar.setTitle("Bread Crumms");
         setSupportActionBar(toolbar);
 
         //Setup for location updates
@@ -127,24 +186,12 @@ public class MainActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
                 .build();
-        locationRequest = new LocationRequest()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(updateDelay)
-                .setInterval(updateDelay);
-        //have pendingIntent send broadcast that will be picked up
-        //  by any registered BroadcastReceivers in the current package
-        //  that have the action StoreLocation.LOCATION_UPDATE set
-        Intent tempIntent = new Intent()
-                .setPackage(getApplicationContext().getPackageName())
-                .setAction(StoreLocation.LOCATION_UPDATE);
-        //TODO: Change Flag to Cancel Current?
-        locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        locationSettingsRequest = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-                .setAlwaysShow(true);
         googleApiClient.connect();
+
+        //initialize the appropriate member variables for the LocationRequest with the
+        //  values set in the settings
+        //look at documentation for initLocationInformation() for more information
+        initLocationInformation();
 
 
     }
@@ -193,8 +240,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            updateUI(mLastLocation);
+            //get the user's current location only after they accepted the EULA
+            if(hasAcceptedEULA){
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                updateUI(mLastLocation);
+            }
         }
         catch(SecurityException e){
             //pass silently
@@ -211,14 +261,7 @@ public class MainActivity extends AppCompatActivity implements
     private void addMyLocationUpdates(){
         //Build the Location Request based off the user's setting for updateDelay,
         // then check if we have the settings for making request,
-        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
-        locationRequest = new LocationRequest()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setFastestInterval(updateDelay)
-                .setInterval(updateDelay);
-        locationSettingsRequest = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-                .setAlwaysShow(true);
+        initLocationInformation();
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(
                         googleApiClient,
@@ -233,23 +276,32 @@ public class MainActivity extends AppCompatActivity implements
                     //All location settings were satisfied
                     case LocationSettingsStatusCodes.SUCCESS:
                         try{
-                            //Actually add our request for Location Update
-                            LocationServices.FusedLocationApi.requestLocationUpdates(
-                                    googleApiClient,
-                                    locationRequest,
-                                    locationIntent
-                            );
-                            Intent tmp = new Intent()
-                                    .setClass(MainActivity.this, StoreLocation.class);
-                            startService(tmp);
-                            Toast.makeText(
+                            //ensure we have permission for dangerous permission (API >=23)
+                            int locationCheck;
+                            String locationPrecisionPermission;
+                            if(locationRequest.getPriority()==LocationRequest.PRIORITY_HIGH_ACCURACY){
+                                locationPrecisionPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+                            }
+                            else{
+                                locationPrecisionPermission = Manifest.permission.ACCESS_COARSE_LOCATION;
+                            }
+
+                            locationCheck = ContextCompat.checkSelfPermission(
                                     getApplicationContext(),
-                                    "Each location update will occur every " + updateDelay/1000 + " seconds",
-                                    Toast.LENGTH_LONG
-                            ).show();
-
-                            Log.d("Derp", "Location request added");
-
+                                    locationPrecisionPermission
+                            );
+                            //we need to request for permission
+                            if(locationCheck == PackageManager.PERMISSION_DENIED){
+                                ActivityCompat.requestPermissions(
+                                        MainActivity.this,
+                                        new String[]{locationPrecisionPermission},
+                                        LOCATION_PERMISSION_CHECK
+                                );
+                            }
+                            //we already have permission, actually add the location request
+                            else{
+                                actuallyAddLocationRequest();
+                            }
                         }
                         catch (SecurityException e){
                             //pass silently
@@ -257,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements
 
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        Log.d("Derp", "Need to ask for permission");
                         try{
                             status.startResolutionForResult(MainActivity.this, REQUEST_FOR_LOCATION);
                         }
@@ -277,22 +328,19 @@ public class MainActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == REQUEST_FOR_LOCATION){
             switch(resultCode){
+                //The user allowed the app to turn lon location, attempt to add location updates again
                 case RESULT_OK:
-                    Log.d("Derp", "ASDFASFA");
                     addMyLocationUpdates();
                     break;
                 case RESULT_CANCELED:
                     //Notify user that location is necessary
                     Toast.makeText(
                             getApplicationContext(),
-                            "Location must be enabled for BreadCrumms to work",
+                            "Location must be enabled for Bread Crumms to work",
                             Toast.LENGTH_LONG).show();
                     ToggleButton button = (ToggleButton)
                             findViewById(R.id.myButton);
                     button.setChecked(false);
-                    TextView locText = (TextView)
-                            findViewById(R.id.message);
-                    locText.setText(R.string.not_looking_for_location);
                     active = false;
 
 
@@ -312,16 +360,10 @@ public class MainActivity extends AppCompatActivity implements
         removeLocationStatus.setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
-                if(status.isSuccess()){
-                    Log.d("Derp", "Successfully removed location request");
-                }
-                else{
-                    Log.d("Derp", "COULD NOT REMOVE LOCATION REQUEST");
-                }
+
             }
         });
 
-        Log.d("Derp", "Location Request Removed");
     }
 
     private void updateUI(Location newLoc){
@@ -336,13 +378,14 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    /**
+     * Triggered whenever the user clicks the button turning starting/stopping StoreLocation service
+     * @param view
+     */
     public void toggleFindLocation(View view){
-        TextView msg = (TextView) findViewById(R.id.message);
 
         if(active){
             active = false;
-            msg.setText(R.string.not_looking_for_location);
             removeMyLocationUpdates();
             Intent tmp = new Intent()
                     .setClass(MainActivity.this, StoreLocation.class);
@@ -351,7 +394,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         else{
             active = true;
-            msg.setText(R.string.looking_for_location);
             addMyLocationUpdates();
             registerReceiver(locationReceiver, new IntentFilter(StoreLocation.LOCATION_UPDATE));
 
@@ -368,4 +410,107 @@ public class MainActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
+    /**
+     * Helper function that sets the value of member variables of MainActivity
+     *  used for generating the LocationRequest to the user's settings
+     *      <ul>
+     *          <li>
+     *              LocationRequest locationRequest
+     *           </li>
+     *           <li>
+     *               PendingIntent locationIntent
+     *           </li>
+     *           <li>
+     *               LocationSettingsRequest.Builder locationSettingsRequest
+     *           </li>
+     *           <li>
+     *               long updateDelay
+     *           </li>
+     *      </ul>
+     */
+    private void initLocationInformation(){
+        //set how many milliseconds to wait until the next location update
+        updateDelay = Long.valueOf(sharedPreferences.getString("updateDelay", "60000"));
+
+        locationRequest = new LocationRequest()
+                .setFastestInterval(updateDelay)
+                .setInterval(updateDelay);
+
+        //set priority of locationRequest based on user settings
+
+        String locationRequestSharedPreferenceKey = sharedPreferences.getString(
+                "locationPrecision",
+                getString(R.string.mainActivitySettings_locationPrecision_HIGH_ACCURACY)
+        );
+
+        if(locationRequestSharedPreferenceKey.equals(getString(R.string.mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY))){
+            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        }
+        //if all the above fail, set the priority to HIGH_ACCURACY
+        else {
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+
+        //have pendingIntent send broadcast that will be picked up
+        //  by any registered BroadcastReceivers in the current package
+        //  that have the action StoreLocation.LOCATION_UPDATE set
+        Intent tempIntent = new Intent()
+                .setPackage(getApplicationContext().getPackageName())
+                .setAction(StoreLocation.LOCATION_UPDATE);
+        locationIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                StoreLocation.LOCATION_UPDATE_CODE, tempIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        locationSettingsRequest = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .setAlwaysShow(true);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case LOCATION_PERMISSION_CHECK:{
+                //The permission was granted, actually add the location request
+                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    actuallyAddLocationRequest();
+                }
+                //the permission was denied, let the user know we need the permission to operate
+                //  via toast message and turn off the button
+                else{
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Location must be enabled for Bread Crumms to work",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                    ToggleButton button = (ToggleButton)
+                            findViewById(R.id.myButton);
+                    button.setChecked(false);
+                    active = false;
+                }
+                return;
+            }
+        }
+    }
+
+    //Helper method that actually adds the LocationRequest to the FusedLocationAPI
+    private void actuallyAddLocationRequest(){
+        try{
+            //Actually add our request for Location Update
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    googleApiClient,
+                    locationRequest,
+                    locationIntent
+            );
+            Intent tmp = new Intent()
+                    .setClass(MainActivity.this, StoreLocation.class);
+            startService(tmp);
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Each location update will occur every " + updateDelay/1000 + " seconds",
+                    Toast.LENGTH_SHORT
+            ).show();
+    }
+        catch (SecurityException e){
+            //pass silently
+        }
+    }
 }

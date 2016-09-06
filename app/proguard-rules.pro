@@ -15,3 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keepattributes Signature
+
+-keep class com.example.miker_000.breadcrumms.** {
+  public protected *;
+}

@@ -1,12 +1,14 @@
 <resources>
-    <string name="app_name">BreadCrumms</string>
+    <string name="app_name">Bread Crumms</string>
     <string name="looking_for_location">Looking for Location</string>
     <string name="not_looking_for_location"><b>NOT</b> Looking for Location</string>
-    <string name="no_latititude">Could Not Find Latitude</string>
-    <string name="no_longitude">Could Not Find Longitude</string>
+    <string name="no_latititude">Unknown</string>
+    <string name="no_longitude">Unknown</string>
     <string name="title_activity_heat_map_settings">Heat Map Settings</string>
     <string name="heatmap_noWifi_toastMessage">Connect to the Internet if Satellite Image Quality is Poor</string>
-    <string name="heatmap_snapshotsDirName">BreadCrumms</string>
+    <string name="heatmap_snapshotsDirName">@string/app_name</string>
+    <string name="heatmap_snapshotSuccessfulToastMessage">Saved Snapshot!</string>
+    <string name="heatmap_snapshotUnsuccessfulToastMessage">Unable To Save Snapshot</string>
 
     <!-- Strings related to Settings -->
 
@@ -15,9 +17,6 @@
         <item>2 minutes</item>
         <item>1 minute</item>
         <item>30 seconds</item>
-        <item>10 seconds</item>
-        <item>5 seconds</item>
-        <item>1 second</item>
     </string-array>
 
     <string-array name="mainActivitySettings_values">
@@ -25,20 +24,20 @@
         <item>120000</item>
         <item>60000</item>
         <item>30000</item>
-        <item>10000</item>
-        <item>5000</item>
-        <item>1000</item>
     </string-array>
 
     <string name="heatmapActivitySettings_interval_allDays">All Days</string>
     <string name="heatmapActivitySettings_interval_thisMonth">This Month</string>
     <string name="heatmapActivitySettings_interval_thisWeek">This Week</string>
     <string name="heatmapActivitySettings_interval_today">Today</string>
+    <string name="heatmapActivitySettings_interval_custom">Custom Range</string>
+
     <string-array name="heatmapActivitySettings_timeInterval_entries">
         <item>@string/heatmapActivitySettings_interval_allDays</item>
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
         <item>@string/heatmapActivitySettings_interval_today</item>
+        <item>@string/heatmapActivitySettings_interval_custom</item>
     </string-array>
 
 
@@ -47,6 +46,7 @@
         <item>@string/heatmapActivitySettings_interval_thisMonth</item>
         <item>@string/heatmapActivitySettings_interval_thisWeek</item>
         <item>@string/heatmapActivitySettings_interval_today</item>
+        <item>@string/heatmapActivitySettings_interval_custom</item>
     </string-array>
 
     <string name="heatmapActivitySettings_mapType_MAP_TYPE_NORMAL">Normal</string>
@@ -63,6 +63,24 @@
         <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_NORMAL</item>
         <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE</item>
         <item>@string/heatmapActivitySettings_mapType_MAP_TYPE_TERRAIN</item>
+    </string-array>
+
+    <string name="mainActivitySettings_locationPrecision_HIGH_ACCURACY">
+        High Accuracy
+    </string>
+    <string name="mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY">
+        Medium Accuracy
+    </string>
+
+
+    <string-array name="mainActivitySettings_locationPrecision_entries">
+        <item>@string/mainActivitySettings_locationPrecision_HIGH_ACCURACY</item>
+        <item>@string/mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY</item>
+    </string-array>
+
+    <string-array name="mainActivitySettings_locationPrecision_values">
+        <item>@string/mainActivitySettings_locationPrecision_HIGH_ACCURACY</item>
+        <item>@string/mainActivitySettings_locationPrecision_BALANCED_POWER_ACCURACY</item>
     </string-array>
 
 
@@ -126,4 +144,234 @@
     <string name="latlng_dialog">Enter Latitude And Longitude</string>
     <string name="latitudeTitle">Latitude:</string>
     <string name="longitudeTitle">Longitude:</string>
+    <string name="tracking_on">Turn On Tracking</string>
+    <string name="tracking_off">Turn Off Tracking</string>
+    <string name="trackingNotificationMessage">Location Tracking Is On</string>
+    <string name="heatmapBeingGeneratedToastText">Generating Heatmap: This may take a few seconds</string>
+    <string name="setLatLngDialogFragmentMessage">Set Map\'s Location</string>
+
+    <string name="privacy_policy">
+        <![CDATA[
+        <h1>Bread Crumms Privacy Policy</h1>
+
+        <p>The Bread Crumms Android Application will hereafter be referred to as \"THE APPLICATION\".</p>
+
+        <h2>About the Developer</h2>
+        <p>THE APPLICATION was a pet project of mine (Michael Rechenberg) developed in the Summer of 2016.</p>
+        <p>If you want to contact me please email mrechenberg09@gmail.com</p>
+
+        <h2>Data The App Collects And Stores</h2>
+
+        <p>The latitude, longitude, and time of which the latitude and longitude was stored will
+        hereafter be referred to as \"LOCATION DATA\".</p>
+        <p>The Android device that THE APPLICATION runs on will hereafter be referred to as \"DEVICE\".</p>
+
+        <h3>Why THE APPLICATION Collects And Stores LOCATION DATA</h3>
+        <p>THE APPLICATION is centered around location: THE APPLICATION uses LOCATION DATA
+        in order to generate a heat map based off of where you were most often in the past.
+        In order to generate a heat map based off of where you were most often in the past, THE APPLICATION needs to
+        store your location periodically. </p>
+
+        <h3>How and When THE APPLICATION Collects And Stores LOCATION DATA</h3>
+        <p>When you turn on the Tracking Service
+        (done by clicking \"Turn On Tracking\" within THE APPLICATION), THE APPLICATION will periodically request the
+        location of your DEVICE and store the latitude and longitude of that location as LOCATION DATA.
+        <b>Note that the Tracking Service occurs in the background and continues even if you continue to have THE APPLICATION open,
+        switch to other applications on your DEVICE, or lock your DEVICE\'s screen.</b>
+        You can turn off the Tracking Service at any time via THE APPLICATION.
+        You can select how often THE APPLICATION
+        will request for your DEVICE\'S location and store new LOCATION DATA within THE APPLICATION\'s settings.
+        Turning off the Tracking Service will remove the periodic request for your DEVICE\'s location and
+        stop the storage of any new LOCATION DATA until the Tracking Service is turned on again.
+        </p>
+        <p>THE APPLICATION will not collect or store any LOCATION DATA if the Location setting of your
+        DEVICE is turned off.  If THE APPLICATION requires your Location setting of your DEVICE to be on,
+        you will be explicitly requested to turn it on.</p>
+        <p>When initially opening up the Heat Map Activity THE APPLICATION may use your recent location
+        to set the camera of the Google Map.</p>
+
+        <h3>Where LOCATION DATA Is Stored</h3>
+        <p>Your LOCATION DATA is stored on your DEVICE only.</p>
+
+        <h3>How Long LOCATION DATA Is Stored</h3>
+        <p>Your LOCATION DATA is stored on your DEVICE as long as you have THE APPLICATION installed on your DEVICE.</p>
+
+
+        <h3>Deleting Your Stored LOCATION DATA</h3>
+        <p>You can delete all your stored LOCATION DATA at any time via THE APPLICATION\'s settings.
+        Also, if you uninstall THE APPLICATION
+        from your DEVICE then your stored LOCATION DATA will also be deleted.</p>
+
+        <h3>Disclosure Of LOCATION DATA to Third Parties</h3>
+        <p>Your stored LOCATION DATA is not shared with any third parties.</p>
+
+
+        <h2>Third Party Information</h2>
+        <p>THE APPLICATION uses the Google Maps API for Android in order to show satellite imagery
+        of locations.  Google Maps may use cookies in its implementation.  Links to Google\'s Privacy Policies and Terms of
+        Service are http://www.google.com/policies/privacy
+        and https://www.google.com/intl/ALL/help/terms_maps.html.  Usage of THE APPLICATION binds
+        you to Google\'s Terms of Service.</p>
+
+        <h2>Children\'s Privacy</h2>
+        <p>THE APPLICATION is intended for a general audience and does not knowingly collect, solicit, or store personal information from children under 13.</p>
+
+
+        <h2>Changes to the Privacy Policy</h2>
+        <p>This Privacy Policy is subject to change without notice.</p>
+
+        <h2>Your Consent And Privacy Policy Efficacy</h2>
+        <p>By using THE APPLICATION you consent to this privacy policy and  the
+        privacy policy is effective upon your consent.</p>
+
+        ]]>
+    </string>
+    <string name="EULA_PositiveButton">I Agree</string>
+    <string name="EULA_text">
+        <![CDATA[
+        <p><b>By Clicking \"I Agree\" you accept the following End User License Agreement.</b><p>
+
+        <h1>Bread Crumms</h1>
+        <h1>Copyright \u00A9 2016 Michael Rechenberg</h1>
+
+        <p>
+        *** END USER LICENSE AGREEMENT ***
+        </p>
+
+        <p>
+        IMPORTANT: PLEASE READ THIS LICENSE CAREFULLY BEFORE USING THIS SOFTWARE.
+        </p>
+
+        <h2>1. LICENSE</h2>
+
+        <p>
+        By receiving, opening the file package, and/or using Bread Crumms(\"Software\") containing this software, you agree that this End User License Agreement(EULA) is a legally binding and valid contract and agree to be bound by it. You agree to abide by the intellectual property laws and all of the terms and conditions of this Agreement.
+        </p>
+
+        <p>
+        Unless you have a different license agreement signed by Michael Rechenberg your use of Bread Crumms indicates your acceptance of this license agreement and warranty.
+        </p>
+
+        <p>
+        Subject to the terms of this Agreement, Michael Rechenberg grants to you a limited, non-exclusive, non-transferable license, without right to sub-license, to use Bread Crumms in accordance with this Agreement and any other written agreement with Michael Rechenberg. Michael Rechenberg does not transfer the title of Bread Crumms to you; the license granted to you is not a sale. This agreement is a binding legal agreement between Michael Rechenberg and the purchasers or users of Bread Crumms.
+        </p>
+
+        <p>
+        If you do not agree to be bound by this agreement, remove Bread Crumms from your computer now and, if applicable, promptly return to Michael Rechenberg by mail any copies of Bread Crumms and related documentation and packaging in your possession.
+        </p>
+
+        <h2>2. DISTRIBUTION</h2>
+
+        <p>
+        Bread Crumms and the license herein granted shall not be copied, shared, distributed, re-sold, offered for re-sale, transferred or sub-licensed in whole or in part except that you may make one copy for archive purposes only. For information about redistribution of Bread Crumms contact Michael Rechenberg.
+        </p>
+
+        <h2>3. USER AGREEMENT</h2>
+
+        <h3>3.1 Use</h3>
+
+        <p>
+        Your license to use Bread Crumms is limited to the number of licenses purchased by you. You shall not allow others to use, copy or evaluate copies of Bread Crumms.
+        </p>
+
+        <h3>3.2 Use Restrictions</h3>
+
+        <p>
+        You shall use Bread Crumms in compliance with all applicable laws and not for any unlawful purpose. Without limiting the foregoing, use, display or distribution of Bread Crumms together with material that is pornographic, racist, vulgar, obscene, defamatory, libelous, abusive, promoting hatred, discriminating or displaying prejudice based on religion, ethnic heritage, race, sexual orientation or age is strictly prohibited.
+        </p>
+
+
+
+        <h3>3.3 Copyright Restriction</h3>
+
+        <p>
+        This Software contains copyrighted material, trade secrets and other proprietary material. You shall not, and shall not attempt to, modify, reverse engineer, disassemble or decompile Bread Crumms. Nor can you create any derivative works or other works that are based upon or derived from Bread Crumms in whole or in part.
+        </p>
+
+        </p>
+        Michael Rechenberg\'s name, logo and graphics file that represents Bread Crumms shall not be used in any way to promote products developed with Bread Crumms . Michael Rechenberg retains sole and exclusive ownership of all right, title and interest in and to Bread Crumms and all Intellectual Property rights relating thereto.
+        </p>
+
+        </p>
+        Copyright law and international copyright treaty provisions protect all parts of Bread Crumms, products and services. No program, code, part, image, audio sample, or text may be copied or used in any way by the user except as intended within the bounds of the single user program. All rights not expressly granted hereunder are reserved for Michael Rechenberg.
+        </p>
+
+        <h3>3.4 Limitation of Responsibility</h3>
+
+        <p>
+        You will indemnify, hold harmless, and defend Michael Rechenberg , its employees, agents and distributors against any and all claims, proceedings, demand and costs resulting from or in any way connected with your use of Michael Rechenberg\'s Software.
+        </p>
+
+        <p>
+        In no event (including, without limitation, in the event of negligence) will Michael Rechenberg , its employees, agents or distributors be liable for any consequential, incidental, indirect, special or punitive damages whatsoever (including, without limitation, damages for loss of profits, loss of use, business interruption, loss of information or data, or pecuniary loss), in connection with or arising out of or related to this Agreement, Bread Crumms or the use or inability to use Bread Crumms or the furnishing, performance or use of any other matters hereunder whether based upon contract, tort or any other theory including negligence.
+        </p>
+
+
+        <h3>3.5 Warranties</h3>
+
+        <p>
+        Except as expressly stated in writing, Michael Rechenberg makes no representation or warranties in respect of this Software and expressly excludes all other warranties, expressed or implied, oral or written, including, without limitation, any implied warranties of merchantable quality or fitness for a particular purpose.
+        </p>
+
+        <h3>3.6 Governing Law</h3>
+
+        <p>
+        This Agreement shall be governed by the law of the United States applicable therein. You hereby irrevocably attorn and submit to the non-exclusive jurisdiction of the courts of United States therefrom. If any provision shall be considered unlawful, void or otherwise unenforceable, then that provision shall be deemed severable from this License and not affect the validity and enforceability of any other provisions.
+        </p>
+
+        <h3>3.7 Termination</h3>
+
+        <p>
+        Any failure to comply with the terms and conditions of this Agreement will result in automatic and immediate termination of this license. Upon termination of this license granted herein for any reason, you agree to immediately cease use of Bread Crumms and destroy all copies of Bread Crumms supplied under this Agreement. The financial obligations incurred by you shall survive the expiration or termination of this license.
+        </p>
+
+        <h2>4. DISCLAIMER OF WARRANTY</h2>
+
+        <p>
+        THIS SOFTWARE AND THE ACCOMPANYING FILES ARE SOLD \"AS IS\" AND WITHOUT WARRANTIES AS TO PERFORMANCE OR MERCHANTABILITY OR ANY OTHER WARRANTIES WHETHER EXPRESSED OR IMPLIED. THIS DISCLAIMER CONCERNS ALL FILES GENERATED AND EDITED BY Bread Crumms AS WELL.
+        </p>
+
+        <h2>5. CONSENT OF USE OF DATA</h2>
+
+        <p>
+        You agree that Michael Rechenberg may collect and use information gathered according to Bread Crumm\'s Privacy Policy which you can view going online and visiting https://sites.google.com/site/breadcrummsapp/privacypolicy as part of the product support services provided to you, if any, related to Bread Crumms.
+        </p>
+
+
+        <p>By clicking \"I Agree\" you accept this End User License Agreement</p>
+        ]]>
+    </string>
+    <string name="activity_main_locationTitle">Last Received Location</string>
+
+    <string name="aboutSection_text">
+        <![CDATA[
+        <h1>About Section</h1>
+        <h2>What Bread Crumms Does</h2>
+        <p>Bread Crumms is an app that allows you to track and store your location and then
+        visualize where you were most of the time using a heat map.  You can choose to view
+        your location data from the past month, week, day, or whatever range of dates you prefer.
+        Then you can select the area you want to analyze using a Google Map, scrolling to whatever location you
+        want or jumping to a specific latitude and longitude, and generate your heat map.
+        You can adjust the opacity of the heat map and what type of Google Map you want to use
+        (Satellite, Terrain, or Normal).  Once you\'ve generated your perfect heat map, you can click the save icon
+        and save a snapshot of your heat map for posterity.</p>
+
+        <h2>What Does Bread Crumms Do With My Device\'s Current And Past Location Data?</h2>
+        <p>Look at the Privacy Policy for the full details, but the short version is that
+        your location data is stored on your phone only and not shared with third parties.</p>
+
+        <p>Your location data is erased when you uninstall the app or select \"Clear Data\" for the app
+        within Android\'s app settings.</p>
+
+        <h2>About the Developer</h2>
+        <p>This app was a pet project of mine (Michael Rechenberg) developed in the Summer of 2016.</p>
+        <p>If you want to contact me please email mrechenberg09@gmail.com</p>
+
+        <h2>Acknowledgements</h2>
+        <p>Thanks to Google for providing the Google Maps API for Android and the
+        Google Maps API Utility Library, both of which power Bread Crumms.</p>
+        <p>A big thanks to Google\'s Material Design Icons https://design.google.com/icons/ for providing
+        great looking icons for the toolbar.</p>
+        ]]>
+    </string>
 </resources>

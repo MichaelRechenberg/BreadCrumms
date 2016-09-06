@@ -12,4 +12,31 @@
 
     </ListPreference>
 
+    <ListPreference
+        android:title="Location Precision"
+        android:key="locationPrecision"
+        android:entries="@array/mainActivitySettings_locationPrecision_entries"
+        android:entryValues="@array/mainActivitySettings_locationPrecision_values"
+        android:summary="%s"
+        android:defaultValue="@string/mainActivitySettings_locationPrecision_HIGH_ACCURACY"></ListPreference>
+
+    <com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference
+        android:title="Privacy Policy"
+        android:dialogTitle="Privacy Policy">
+    </com.example.miker_000.breadcrumms.PrivacyPolicyDialogPreference>
+
+    <com.example.miker_000.breadcrumms.AboutSectionDialogPreference
+        android:title="About"
+        android:dialogTitle="About">
+
+    </com.example.miker_000.breadcrumms.AboutSectionDialogPreference>
+
+    <com.example.miker_000.breadcrumms.DeleteLocationDataDialogPreference
+        android:title="Delete All Location Data"
+        android:dialogTitle="Warning!"
+        android:dialogMessage="Clicking OK will delete ALL of the location points you have
+        tracked. This cannot be undone.">
+
+    </com.example.miker_000.breadcrumms.DeleteLocationDataDialogPreference>
+
 </PreferenceScreen>

@@ -1,20 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <ListPreference
-        android:title="Time Interval"
-        android:key="heatmap_timeInterval"
-        android:entries="@array/heatmapActivitySettings_timeInterval_entries"
-        android:entryValues="@array/heatmapActivitySettings_timeInterval_values"
-        android:defaultValue="@string/heatmapActivitySettings_interval_allDays"></ListPreference>
 
-    <com.example.miker_000.breadcrumms.SeekBarDialogPreference
-        android:title="Opacity"
-        android:key="heatmap_opacity"
-        android:defaultValue="70"></com.example.miker_000.breadcrumms.SeekBarDialogPreference>
-    <ListPreference
-        android:title="Map Type"
-        android:key="heatmap_mapType"
-        android:entries="@array/heatmapActivitySettings_mapType_entries"
-        android:entryValues="@array/heatmapActivitySettings_mapType_values"
-        android:defaultValue="@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE"></ListPreference>
+    <PreferenceCategory
+        android:title="Time Interval Settings">
+
+        <ListPreference
+            android:title="Time Interval"
+            android:key="heatmap_timeInterval"
+            android:entries="@array/heatmapActivitySettings_timeInterval_entries"
+            android:entryValues="@array/heatmapActivitySettings_timeInterval_values"
+            android:defaultValue="@string/heatmapActivitySettings_interval_allDays"
+            android:summary="%s">
+
+        </ListPreference>
+
+        <!--The key is not used in settings but used for disabling if custom range is not selected for Time Interval -->
+        <com.example.miker_000.breadcrumms.SetCustomTimeIntervalDialogPreference
+            android:title="Set Custom Interval"
+            android:key="heatmap_customTimeIntervalPreference"
+            android:shouldDisableView="true">
+
+        </com.example.miker_000.breadcrumms.SetCustomTimeIntervalDialogPreference>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Map Settings">
+
+        <com.example.miker_000.breadcrumms.SeekBarDialogPreference
+            android:title="Opacity"
+            android:key="heatmap_opacity"
+            android:defaultValue="70"></com.example.miker_000.breadcrumms.SeekBarDialogPreference>
+        <ListPreference
+            android:title="Map Type"
+            android:key="heatmap_mapType"
+            android:entries="@array/heatmapActivitySettings_mapType_entries"
+            android:entryValues="@array/heatmapActivitySettings_mapType_values"
+            android:defaultValue="@string/heatmapActivitySettings_mapType_MAP_TYPE_SATELLITE"
+            android:summary="%s"></ListPreference>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

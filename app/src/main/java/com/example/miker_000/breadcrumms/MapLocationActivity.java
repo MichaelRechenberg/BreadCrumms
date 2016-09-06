@@ -1,9 +1,10 @@
 package com.example.miker_000.breadcrumms;
 
-import android.app.Dialog;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -12,58 +13,66 @@ import android.location.Location;
 import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.app.DialogFragment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
+/**
+ * Displays a GoogleMap Fragment that will show a heat map of all the points stored
+ *  within the user's desired range of dates (All Time, Past Month, Past Week, Today)
+ *
+ *  User can store a snapshot of the Google Map
+ *  User can manually set location via a Dialog
+ */
 public class MapLocationActivity extends AppCompatActivity
     implements OnMapReadyCallback, SetLatLngDialogFragment.LatLngDialogListener{
+
+    private static final int WRITE_EXTERNAL_PERMISSION_CHECK = 0;
 
 
     private GoogleMap theMap;
     private TileOverlay heatMapOverlay;
+    private Gradient theMapGradient;
     private boolean isHeatMapOn;
 
-    private SQLiteDatabase db;
-    private LocationDatabaseDbHelper dbHelper;
-
     private SharedPreferences sharedPreferences;
+    private Switch heatmapSwitch;
 
 
 
@@ -77,9 +86,6 @@ public class MapLocationActivity extends AppCompatActivity
         //set up shared preferences
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        //init DB variable
-        dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
-        db = dbHelper.getReadableDatabase();
 
         //set up the tool bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.theToolbar);
@@ -88,8 +94,8 @@ public class MapLocationActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         //set up toggle switch
-        Switch heatMapSwitch = (Switch) findViewById(R.id.heatMapSwitch);
-        heatMapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        heatmapSwitch = (Switch) findViewById(R.id.heatMapSwitch);
+        heatmapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //Turn on heatmap overlay
                 if (isChecked) {
@@ -105,6 +111,23 @@ public class MapLocationActivity extends AppCompatActivity
                 }
             }
         });
+
+        //init gradient
+        final int[] gradientColors = {
+                //blue
+                Color.rgb(0, 0, 180),
+                //green
+                Color.rgb(102, 255, 0),
+                //red
+                Color.rgb(255, 0, 0)
+        };
+
+        final float[] gradientStartPoints = {
+                0.2f,
+                0.7f,
+                1.0f
+        };
+        theMapGradient = new Gradient(gradientColors, gradientStartPoints);
 
         //Set up the Google Map Object
         FragmentManager fragmentManager= getSupportFragmentManager();
@@ -156,77 +179,41 @@ public class MapLocationActivity extends AppCompatActivity
                         .setClass(getApplicationContext(), HeatmapSettingsActivity.class);
                 startActivity(intent);
                 return true;
+            //Save a snapshot of the heat map
             case R.id.heatmap_snapshot:
-                //Save the picture to external storage
+                //check permissions and ask for them if necessary
 
-                //External storage is not available
-                if(!isExternalStorageWritable()){
-                    return false;
+                //we don't have permission ask, so ask for it
+                if(ContextCompat.checkSelfPermission(MapLocationActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+
+                    ActivityCompat.requestPermissions(
+                            MapLocationActivity.this,
+                            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            WRITE_EXTERNAL_PERMISSION_CHECK
+                    );
+                    return true;
+                }
+                else{
+                    return saveSnapshot();
                 }
 
 
-                final File path = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES),
-                    getString(R.string.heatmap_snapshotsDirName)
-                );
-
-
-                theMap.snapshot(
-                        new GoogleMap.SnapshotReadyCallback() {
-                            @Override
-                            public void onSnapshotReady(Bitmap bitmap) {
-                                try{
-                                    path.mkdirs();
-                                    int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
-                                    File snapshot = new File(path, "map_snapshot00"+photoCount+".jpeg");
-
-                                    FileOutputStream outputStream = new FileOutputStream(snapshot);
-                                    bitmap.compress(
-                                            Bitmap.CompressFormat.JPEG,
-                                            100,
-                                            outputStream
-                                    );
-
-                                    //Have MediaScanner scan file so the user can immediately access it
-                                    MediaScannerConnection.scanFile(
-                                            getApplicationContext(),
-                                            new String[] { snapshot.getAbsolutePath() },
-                                            null,
-                                            null
-                                    );
-
-                                    Toast.makeText(
-                                            getApplication(),
-                                            "Saved!",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    photoCount++;
-                                    editor.putInt("snapshotCounter", photoCount);
-                                    editor.commit();
-
-
-                                    try{
-                                        outputStream.flush();
-                                        outputStream.close();
-                                    }
-                                    catch(IOException e){
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                                catch(FileNotFoundException e){
-                                    Log.e("MapLocation", "Could not find snapshot image file");
-                                }
-                            }
-                        }
-                );
-
-                return true;
-
             case R.id.heatmap_setLocation:
+
+                //Have the EditText's of the SetLatLangDialogFragment be set to
+                //  the map's current LatLng, with 4 digits of precision after the decimal point
+                LatLng currentMapLatLng = theMap.getCameraPosition().target;
+                double lat = currentMapLatLng.latitude;
+                double lng = currentMapLatLng.longitude;
+                lat = (double)Math.round(lat * 10000d) / 10000d;
+                lng = (double)Math.round(lng * 10000d) / 10000d;
                 //open Dialog for user to set Lat/Lng manually
                 SetLatLngDialogFragment dialog = new SetLatLngDialogFragment();
+                Bundle args = new Bundle();
+                args.putDouble("lat", lat);
+                args.putDouble("lng", lng);
+                dialog.setArguments(args);
                 dialog.show(getSupportFragmentManager(), "SetLatLngDialogFragment");
             default:
                 return super.onOptionsItemSelected(item);
@@ -251,7 +238,7 @@ public class MapLocationActivity extends AppCompatActivity
 
         //defaults to google headquarters
         double latitude = 37.420841;
-        double longitude = -127.084063;
+        double longitude = -122.084063;
 
         if(userLocation != null){
             latitude = userLocation.getLatitude();
@@ -287,6 +274,11 @@ public class MapLocationActivity extends AppCompatActivity
      * Make the heat map using the settings set by the user
      */
     private void makeHeatMap(){
+        Toast.makeText(
+                getApplicationContext(),
+                getString(R.string.heatmapBeingGeneratedToastText),
+                Toast.LENGTH_LONG
+        ).show();
         LatLngBounds bounds = theMap.getProjection().getVisibleRegion().latLngBounds;
         String limit = null;
         Date latestDate = null;
@@ -318,6 +310,26 @@ public class MapLocationActivity extends AppCompatActivity
         else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_today))){
             latestDate = cal.getTime();
         }
+        else if(interval.equals(getString(R.string.heatmapActivitySettings_interval_custom))){
+            //NOTE: SQLite uses [1-12] for its Months
+            String latestDateString = sharedPreferences.getString(
+                    SetCustomTimeIntervalDialogPreference.LATEST_DATE_STRING_KEY,
+                    SetCustomTimeIntervalDialogPreference.DEFAULT_LATEST_DATE
+            );
+            String earliestDateString = sharedPreferences.getString(
+                    SetCustomTimeIntervalDialogPreference.EARLIEST_DATE_STRING_KEY,
+                    SetCustomTimeIntervalDialogPreference.DEFAULT_EARLIEST_DATE
+            );
+
+            SimpleDateFormat df = new SimpleDateFormat(SetCustomTimeIntervalDialogPreference.datePattern);
+            try{
+                latestDate = df.parse(latestDateString);
+                earliestDate = df.parse(earliestDateString);
+            }
+            catch(ParseException e){
+                e.printStackTrace();
+            }
+        }
         //If all the above if statements fail, that means that the user selected all days
         //  so latestDate and earliestDate should remain null
 
@@ -326,54 +338,72 @@ public class MapLocationActivity extends AppCompatActivity
         String query = LocationDatabaseDbHelper.gatherLocationsQueryString(bounds, latestDate, earliestDate,
                 limit, order);
 
-        new DumpAllEntries().execute(db, query);
+        //disable the switch until the heatmap is generated
+        heatmapSwitch.setEnabled(false);
+        new GatherPointsAndGenerateHeatmap().execute(query);
 
     }
 
-    private class DumpAllEntries extends AsyncTask<Object, Integer, Cursor> {
+    /**
+     * Async Task that querys the database for the points within the bounds of the Google Map
+     *  and then takes those points and generates a HeatmapTileProvider.
+     *
+     * The heatmapTileOverlay is updated within postExecute
+     *
+     * The first argument is the query you wish to execute
+     */
+    private class GatherPointsAndGenerateHeatmap extends AsyncTask<Object, Integer, HeatmapTileProvider> {
         @Override
-        protected Cursor doInBackground(Object... objects) {
-            SQLiteDatabase db = (SQLiteDatabase) objects[0];
-            String query = (String) objects[1];
-            Cursor result = db.rawQuery(query, null);
-            return result;
-        }
+        protected HeatmapTileProvider doInBackground(Object... objects) {
+            String query = (String) objects[0];
+            LocationDatabaseDbHelper dbHelper = new LocationDatabaseDbHelper(getApplicationContext());
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor result = null;
+            HeatmapTileProvider heatmapProvider = null;
+            try{
+                result = db.rawQuery(query, null);
+                int row_count = result.getCount();
+                if(row_count > 0) {
+                    int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
+                    int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
+                    //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
+                    ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
+                    for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
+                        LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
+                        pts.add(tempPt);
+                    }
+                    //get opacity setting from SharedPreferences
+                    final double opacity = ((double) sharedPreferences.getInt("heatmap_opacity", 70)) / 100;
 
-        @Override
-        protected void onPostExecute(Cursor result) {
-            int row_count = result.getCount();
-            if(row_count > 0){
-                //convert from UTC to local timezone
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                df.setTimeZone(TimeZone.getTimeZone("UTC"));
-                int latitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LATITUDE);
-                int longitudeIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_LONGITUDE);
-                int time_createdIndex = result.getColumnIndex(LocationDatabaseContract.LocationEntry.COLUMN_NAME_TIME_CREATED);
-                Log.d("SQL", String.valueOf(row_count) + " rows were returned");
-
-                //Add all points retuned to ArrayList of LatLng points to then pass to Heat Map
-                ArrayList<LatLng> pts = new ArrayList<LatLng>(row_count);
-                for(result.moveToFirst(); !result.isAfterLast(); result.moveToNext()){
-                    LatLng tempPt = new LatLng(result.getDouble(latitudeIndex), result.getDouble(longitudeIndex));
-                    pts.add(tempPt);
+                    heatmapProvider = new HeatmapTileProvider.Builder()
+                            .data(pts)
+                            .opacity(opacity)
+                            .gradient(theMapGradient)
+                            .build();
                 }
-
-                //get opacity setting from SharedPreferences
-                final double opacity = ( (double)sharedPreferences.getInt("heatmap_opacity", 70) )/100;
-
-                HeatmapTileProvider heatmapProvider = new HeatmapTileProvider.Builder()
-                        .data(pts)
-                        .opacity(opacity)
-                        .build();
-                heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
-
+            } finally{
+                //release the cursor and database
+                if(result !=null){
+                    result.close();
+                }
+                db.close();
             }
 
-            //release the cursor
-            result.close();
 
+
+            return heatmapProvider;
+        }
+
+        @Override
+        protected void onPostExecute(HeatmapTileProvider heatmapProvider) {
+            if(heatmapProvider!=null){
+                heatMapOverlay = theMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider));
+            }
+            //re-enable the switch so user can toggle it again
+            heatmapSwitch.setEnabled(true);
         }
     }
+
 
     //Helper method provided in Android Documenation for
     //  saving a file to external storage
@@ -401,5 +431,101 @@ public class MapLocationActivity extends AppCompatActivity
         else{
             theMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode){
+            case WRITE_EXTERNAL_PERMISSION_CHECK:{
+                //The permission was granted, save picture
+                if(grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    saveSnapshot();
+                }
+                //the permission was denied, let the user we didn't have permission to save
+                else{
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Permission To Save Picture Was Denied",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+                return;
+            }
+        }
+    }
+
+    //Helper method that saves a snapshot of the Google Map to External Storage
+    //Assumes that permission has been granted to write to external storage.
+    private boolean saveSnapshot(){
+        //Save the picture to external storage
+
+        //External storage is not available
+        if(!isExternalStorageWritable()){
+            return false;
+        }
+
+
+        final File path = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES),
+                getString(R.string.heatmap_snapshotsDirName)
+        );
+
+
+        theMap.snapshot(
+                new GoogleMap.SnapshotReadyCallback() {
+                    @Override
+                    public void onSnapshotReady(Bitmap bitmap) {
+                        try{
+                            path.mkdirs();
+                            int photoCount = sharedPreferences.getInt("snapshotCounter", 0);
+                            File snapshot = new File(path, "map_snapshot00"+photoCount+".jpeg");
+
+                            FileOutputStream outputStream = new FileOutputStream(snapshot);
+                            bitmap.compress(
+                                    Bitmap.CompressFormat.JPEG,
+                                    100,
+                                    outputStream
+                            );
+
+                            //Have MediaScanner scan file so the user can immediately access it
+                            MediaScannerConnection.scanFile(
+                                    getApplicationContext(),
+                                    new String[] { snapshot.getAbsolutePath() },
+                                    null,
+                                    null
+                            );
+
+                            Toast.makeText(
+                                    getApplication(),
+                                    getString(R.string.heatmap_snapshotSuccessfulToastMessage),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            photoCount++;
+                            editor.putInt("snapshotCounter", photoCount);
+                            editor.commit();
+
+
+                            try{
+                                outputStream.flush();
+                                outputStream.close();
+                            }
+                            catch(IOException e){
+                                e.printStackTrace();
+                            }
+
+                        }
+                        catch(FileNotFoundException e){
+                            Toast.makeText(
+                                    getApplication(),
+                                    getString(R.string.heatmap_snapshotUnsuccessfulToastMessage),
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+                }
+        );
+
+        return true;
     }
 }

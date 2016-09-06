@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 
 /**
@@ -29,15 +30,25 @@ public class SetLatLngDialogFragment extends DialogFragment {
     }
 
 
+
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.set_latlng_dialog, null);
+        EditText latText = (EditText) view.findViewById(R.id.latitude);
+        EditText lngText = (EditText) view.findViewById(R.id.longitude);
+
+        latText.setText(String.valueOf(getArguments().getDouble("lat")));
+        lngText.setText(String.valueOf(getArguments().getDouble("lng")));
+
 
         //Init custom layout and callback methods
-        builder.setView(inflater.inflate(R.layout.set_latlng_dialog, null))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setView(view)
+                .setTitle(getString(R.string.setLatLngDialogFragmentMessage))
+                .setPositiveButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         double lat;
@@ -48,13 +59,24 @@ public class SetLatLngDialogFragment extends DialogFragment {
                         EditText latText = (EditText) dialog.findViewById(R.id.latitude);
                         EditText lngText = (EditText) dialog.findViewById(R.id.longitude);
 
-                        lat = Double.parseDouble(latText.getText().toString());
-                        lng = Double.parseDouble(lngText.getText().toString());
+                        try{
+                            lat = Double.parseDouble(latText.getText().toString());
+                            lng = Double.parseDouble(lngText.getText().toString());
+                        }
+                        //The number could not be parsed, set lat/lng to values outside
+                        //  the acceptable range so they are rejected by MapLocationActivity
+                        catch(NumberFormatException e){
+                            lat = -1337;
+                            lng = -1337;
+                        }
+
 
                         latLngDialogListener.moveCameraFromDialog(lat, lng);
                     }
                 })
-                .setNegativeButton("Cancel", null);
+                .setNegativeButton(getString(android.R.string.cancel), null);
         return builder.create();
     }
+
+
 }
